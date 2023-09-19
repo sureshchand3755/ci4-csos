@@ -38,10 +38,25 @@ class CommonModel extends Model
 
 	}
 
+    public function Select_Schoolname_Where_row($table,$schoolname,$id=''){
+        $query = $this->db->table($table)
+        ->select('*')
+        ->where('school_name =', $schoolname)
+        ->where('id !=', $id);
+		return $query->countAllResults();
+	}
+    public function Select_SchoolAdmin_Where_row($table,$schooladminname,$id=''){
+		$query = $this->db->table($table)
+        ->select('*')
+		->where('username =', $schooladminname)
+		->where('id !=', $id);
+		return $query->countAllResults();
+	}
+
     /**************CRUD OPERATIONS IN DATABASE************/
     public function Insert_Values($table,$data){
         $query = $this->db->table($table)->insert($data);
-        return $this->db->affectedRows();
+        return $this->db->insertID();//$this->db->affectedRows();
     }
     public function Update_Values($table,$data,$id){
         $query = $this->db->table($table)->where('id', $id)->update($data);

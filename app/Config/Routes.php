@@ -26,5 +26,20 @@ $routes->get('admin/delete_districts/(:num)', 'Admin::delete_districts/$1');
 $routes->get('admin/manage_schools', 'Admin::manage_schools');
 
 $routes->get('admin/addschool', 'Admin::addschool');
+$routes->post('admin/addschool', 'Admin::addschool');
+$routes->get('admin/addschool/(:num)', 'Admin::addschool/$1');
+$routes->post('admin/addschool/(:num)', 'Admin::addschool/$1');
+$routes->get('admin/check_schoolname/(:num)', 'Admin::check_schoolname/$1');
+$routes->get('admin/check_schooladmin/(:num)', 'Admin::check_schooladmin/$1');
+$routes->get('admin/manage_surveys', 'Admin::manage_surveys');
+
+$routes->get('admin/documents_timeline', 'Admin::documents_timeline');
+$routes->post('admin/school_lists_not_all', 'Admin::school_lists_not_all');
+$routes->post('admin/get_documents_timeline', 'Admin::get_documents_timeline');
+
+$routes->get('admin/manage_templates', 'Admin::manage_templates');
+
+
+
 
 
