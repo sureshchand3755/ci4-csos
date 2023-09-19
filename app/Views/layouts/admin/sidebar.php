@@ -2,7 +2,8 @@
 <!-- <nav class="left-menu" left-menu>
     
     <?php
-    $method = $this->router->fetch_method();
+    $method = $data['subsegment'];
+
     ?>
     <div class="left-menu-inner scroll-pane">
         <ul class="left-menu-list left-menu-list-root list-unstyled">

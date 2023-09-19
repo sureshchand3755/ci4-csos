@@ -84,7 +84,7 @@
 			<!-- CONTENT -->
 			<main class="content">
 				<div class="container-fluid p-0">
-					<?= $this->renderSection('content'); ?>
+                	<?= $this->renderSection('content'); ?>
 				</div>
 			</main>
 			<!-- FOOTER: DEBUG INFO + COPYRIGHTS -->

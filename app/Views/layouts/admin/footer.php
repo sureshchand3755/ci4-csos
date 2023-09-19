@@ -12,7 +12,7 @@
 }
 </style>
 <?php
-$method = $this->router->fetch_method();
+$method = $subsegment;
 if($method == "addtemplate" || $method == "addtemplate_step2" || $method == "addtemplate_step3" || $method == "add_submitted_template" || $method == "add_submitted_template_step2" || $method == "add_submitted_template_step3") { } else { ?>
 <div style="margin-top:40px;width:100%">&nbsp;</div>
 <div class="footer">

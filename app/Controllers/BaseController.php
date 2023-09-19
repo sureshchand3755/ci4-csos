@@ -8,6 +8,8 @@ use CodeIgniter\HTTP\IncomingRequest;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
+use App\Models\AdminModel;
+use App\Models\CommonModel;
 
 /**
  * Class BaseController
@@ -35,7 +37,18 @@ abstract class BaseController extends Controller
      *
      * @var array
      */
-    protected $helpers = [];
+    protected $helpers = ['cookie', 'date', 'security', 'url', 'form', 'array'];
+    protected $data 	= [];
+    protected $adminModel;
+    protected $commonModel;
+    protected $session;
+	protected $segment;
+	protected $db;
+    protected $router;
+	protected $validation;
+	protected $encrypter;
+	protected $language;
+    protected $fetchmethod;
 
     /**
      * Be sure to declare properties for any property fetch you initialized.
@@ -51,7 +64,31 @@ abstract class BaseController extends Controller
         // Do Not Edit This Line
         parent::initController($request, $response, $logger);
 
-        // Preload any models, libraries, etc, here.
+        //--------------------------------------------------------------------
+		// Preload any models, libraries, etc, here.
+		//--------------------------------------------------------------------
+		$this->session 		= \Config\Services::session();
+		$this->segment 	  	= \Config\Services::request();
+		$this->db         	= \Config\Database::connect();
+		$this->validation 	= \Config\Services::validation();
+		$this->encrypter 	= \Config\Services::encrypter();
+        $this->router 		= \Config\Services::router(); 
+        $this->language     = \Config\Services::language();       
+		$this->adminModel  	= new AdminModel();
+		$this->commonModel  = new CommonModel();
+		$user 				= $this->adminModel->getUser(username: session()->get('username'));
+		$segment 			= $this->request->uri->getSegment(1);
+		if ($segment) {
+			$subsegment 	= $this->request->uri->getSegment(2);
+            $this->fetchmethod 	= $this->request->uri->getSegment(2);
+		} else {
+			$subsegment 	= '';
+		}
+		$this->data			= [
+			'segment' 		=> $segment,
+			'subsegment' 	=> $subsegment,
+			'user' 			=> $user,
+		];
 
         // E.g.: $this->session = \Config\Services::session();
     }
@@ -59,5 +96,13 @@ abstract class BaseController extends Controller
     {
         echo view('layouts/admin_template');
         echo view($page);
-    } 
+    }
+    
+    public function adminBodyTemplate(string $page, $data)
+    {
+        echo view('layouts/admin_template', $data);
+        echo view('layouts/admin/header', $data);
+        echo view($page, $data);
+        echo view('layouts/admin/footer', $data);
+    }
 }

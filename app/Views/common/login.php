@@ -23,14 +23,14 @@
                         <input id="validation-email"
                                class="form-control"
                                placeholder="Email or Username"
-                               name="validation[email]"
+                               name="email"
                                type="text"
                                data-validation="[EMAIL]">
                     </div>
                     <div class="form-group">
                         <input id="validation-password"
                                class="form-control password"
-                               name="validation[password]"
+                               name="password"
                                type="password" data-validation="[L>=6]"
                                data-validation-message="$ must be at least 6 characters"
                                placeholder="Password">

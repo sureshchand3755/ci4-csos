@@ -19,7 +19,7 @@
             <div class="dropdown dropdown-avatar">
                 <a href="javascript: void(0);" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                     <span class="avatar" href="javascript:void(0);">
-                        <?php $admin = $this->Madmin->GetAdminDetail($this->session->userdata('gowriteadmin_Userid'),ADMIN_DETAILS);
+                        <?php $admin = $users;
 
                             if($admin['image']=='') {
 
@@ -74,7 +74,7 @@
                     <div class="btn-group" style="margin-top: -6px;">
                       <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <?php 
-                            $method = $this->router->fetch_method();
+                            $method = $subsegment;
 
                             if($method == "dashboard" || $method == "admin_setting" || $method == "pages" || $method == "addpage") { echo 'DASHBOARD'; } 
                             elseif($method == "manage_district" || $method == "adddistricts") { echo 'MANAGE DISTRICTS'; } 
@@ -133,9 +133,7 @@
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                               <i class="fa fa-bell-o"></i>
                               <?php
-                              $surveys = $this->db->select('*')->from('master_templates')->where('school_id !=',0)->where('school_status',1)->where('admin_status',0)->get()->result_array();
-                              $notifications = $this->db->select('*')->from('notifications')->where('admin',1)->where('status',1)->get()->result_array();
-                                $count = count($surveys) + count($notifications);
+                                $count = (is_countable($surveys) && count($surveys)) + (is_countable($surveys) && count($notifications));
                                 if($count > 0){
                                     echo '<span class="label label-warning">'.$count.'</span>';
                                 }

@@ -94,3 +94,167 @@ define('EVENT_PRIORITY_NORMAL', 100);
 define('EVENT_PRIORITY_HIGH', 10);
 
 define('BASE_URL','http://localhost/ci4-csos/');
+
+
+
+
+define('ADMIN_CSS', "assets/admin/css/");
+
+define('ADMIN_JS', "assets/admin/js/");
+
+define('ADMIN_IMG', "assets/admin/img/");
+
+define('ADMIN_IMAGES', "assets/admin/images/");
+
+define('ADMIN_VENDORS', "assets/admin/vendors/");
+
+define("ADMIN_BASIC_IMAGE", BASE_URL."assets/admin/img/");
+
+/********** Views folder **********/
+
+define('UPLOAD_FLAGS','uploads/flags/');
+
+define('UPLOAD_PROFILEPICS','uploads/profileimages/');
+
+define('UPLOAD_SYMBOLS','uploads/symbols/');
+
+define('ADMIN_VIEW','/admin/');
+
+define('ADMIN_USERVIEW','admin/user/');
+
+/********* CONTROLLERS **********/
+
+define('ADMIN_DASHBOARD','admin/dashboard');
+
+define('ADMIN_LOGOUT', 'admin/logout');
+
+define('ADMIN_MANAGESTATES', 'admin/manage_states');
+
+define('ADMIN_ADDSTATES', 'admin/addstates');
+
+
+
+define('ADMIN_ADDDISTRICTS', 'admin/adddistricts');
+
+define('ADMIN_MANAGEDISTRICT', 'admin/manage_district');
+
+define('ADMIN_MANAGEDISTRICTADMIN', 'admin/manage_districtadmin');
+
+define('ADMIN_ADDDISTRICTADMIN', 'admin/add_districtadmin');
+
+define('ADMIN_MANAGESCHOOLS', 'admin/manage_schools');
+
+define('ADMIN_ADDSCHOOLS', 'admin/addschools');
+
+/***********DATABASE AND TABLES*************/
+
+define('ADMIN_DETAILS','go_admin');
+define('DISTRICTADMIN_DETAILS','go_district_admin');
+
+define('STATES_DETAILS','go_state');
+
+define('DISTRICT_DETAILS','go_districts');
+
+define('SCHOOL_DETAILS','go_schools');
+
+define('GRADE_DETAILS','go_schoolgrade');
+
+define('CREATE_GRADE','go_grade');
+
+define('CLASS_DETAILS','go_class');
+
+define('TEACHER_DETAILS','go_teacher');
+
+define('VIRTUALTEACHER_DETAILS','go_teacher');
+
+define('TEACHER_ROLE_DETAILS','go_teacher_role');
+
+define('STUDENT_DETAILS','go_student');
+
+define('DEPARTMENTNAME_DETAILS','go_departmentname');
+
+define('DEPARTMENT_DETAILS','go_department');
+
+define('EVENT_DETAILS','go_events');
+
+define('GROUP_DETAILS','go_groups');
+
+define('JOINED_EVENTS','joined_events');
+
+define('REJECTED_EVENTS','rejected_events');
+
+define('SAVED_PAPERS','saved_papers');
+
+define('MY_PAPER','mypaper');
+
+define('SUBMITTED_PAPERS','submitted_paper');
+
+define('PAPER_COMMENTS','paper_comments');
+
+define('VOCABULARY_DETAILS','vocabulary_details');
+
+define('TRANSITIONS_DETAILS','transitions_details');
+
+define('ACADEMICWORDS_DETAILS','academicwords_details');
+
+
+
+define('VOCABULARY_CATEGORY','vocabulary_category');
+
+define('TRANSITIONS_CATEGORY','transitions_category');
+
+define('ACADEMICWORDS_CATEGORY','academicwords_category');
+
+define('COMMENT_DETAILS','comment_details');
+
+define('RUBRICK_DETAILS','go_rubicks');
+
+define('AUX_RUBRICK_DETAILS','go_aux_rubicks');
+
+
+
+define('SCORING_DETAILS','go_scoring');
+
+define('TWOPOINT_RUBRICK_DETAILS','go_twopoint_rubicks');
+
+define('REPORT_DETAILS','report_builder');
+
+define('THIRD_PARTY','third_party');
+
+define('THIRD_PARTY_USERS','third_party_users');
+
+define('THIRD_PARTY_COUNTHISTORY','count_history');
+
+define('THIRD_PARTY_TEACHERHISTORY','teacher_history');
+
+define('SET_TEACHER','set_teacher');
+
+define('TIME_TABLE','set_timetable');
+
+define('TEACHER_TIME_TABLE','set_teacher_timetable');
+
+define('WORD_DICTIONERY','word1');
+
+define('DEFINITION_DICTIONERY','word');
+
+define('SYMBOL_COMMENTS','symbol_comments');
+
+define('MISSPELLED_WORDS','misspelled_words');
+
+define('TEMPLATE_DETAILS','go_template');
+
+define('DEPARTMENTCODE_DETAILS','go_dept_code');
+
+define('STUDENT_ACTIVITIES','student_activities');
+
+define('STICKY_NOTES','sticky_notes');
+
+define('SUBMITTED_STICKY_NOTES','submitted_notes');
+
+define('VIRTUALTEACHER_COURSE','virtual_teacher_course');
+
+
+
+define('FAQS','faqs');
+
+define('UPDATES','updates');
