@@ -38,6 +38,34 @@ $routes->post('admin/school_lists_not_all', 'Admin::school_lists_not_all');
 $routes->post('admin/get_documents_timeline', 'Admin::get_documents_timeline');
 
 $routes->get('admin/manage_templates', 'Admin::manage_templates');
+$routes->get('admin/addtemplate', 'Admin::addtemplate');
+$routes->get('admin/addtemplate/(:num)', 'Admin::addtemplate/$1');
+$routes->get('admin/addtemplate_step2/(:num)', 'Admin::addtemplate_step2/$1');
+$routes->get('admin/addtemplate_step3/(:num)', 'Admin::addtemplate_step3/$1');
+$routes->post('admin/save_template_content', 'Admin::save_template_content');
+$routes->post('admin/save_template_content_step2', 'Admin::save_template_content_step2');
+$routes->post('admin/save_template_content_step3', 'Admin::save_template_content_step3');
+$routes->post('admin/ajax_create_master_template', 'Admin::ajax_create_master_template');
+$routes->get('admin/deactivate_templates/(:num)', 'Admin::deactivate_templates/$1');
+$routes->get('admin/activate_templates/(:num)', 'Admin::activate_templates/$1');
+$routes->post('admin/take_a_copy_master_template', 'Admin::take_a_copy_master_template');
+$routes->get('admin/delete_templates/(:num)', 'Admin::delete_templates/$1');
+
+
+
+
+$routes->get('admin/manage_full_surveys', 'Admin::manage_full_surveys');
+$routes->get('admin/manage_full_submitted_surveys', 'Admin::manage_full_submitted_surveys');
+$routes->get('admin/manage_full_reviewed_surveys', 'Admin::manage_full_reviewed_surveys');
+$routes->post('admin/school_lists', 'Admin::school_lists');
+$routes->post('admin/get_school_full_surveys', 'Admin::get_school_full_surveys');
+$routes->get('admin/add_submitted_template/(:num)', 'Admin::add_submitted_template/$1');
+$routes->get('admin/add_submitted_template_step2/(:num)', 'Admin::add_submitted_template_step2/$1');
+$routes->get('admin/add_submitted_template_step3/(:num)', 'Admin::add_submitted_template_step3/$1');
+$routes->post('admin/save_template_content_submitted', 'Admin::save_template_content_submitted');
+$routes->post('admin/save_template_content_step2_submitted', 'Admin::save_template_content_step2_submitted');
+
+$routes->post('admin/print_pdf_sections', 'Admin::print_pdf_sections');
 
 
 
