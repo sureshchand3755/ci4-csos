@@ -36,6 +36,7 @@ Options -Indexes
 	# Ensure Authorization header is passed along
 	RewriteCond %{HTTP:Authorization} .
 	RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+	php_value max_input_vars 5000
 </IfModule>
 
 <IfModule !mod_rewrite.c>

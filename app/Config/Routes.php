@@ -66,6 +66,35 @@ $routes->post('admin/save_template_content_submitted', 'Admin::save_template_con
 $routes->post('admin/save_template_content_step2_submitted', 'Admin::save_template_content_step2_submitted');
 
 $routes->post('admin/print_pdf_sections', 'Admin::print_pdf_sections');
+$routes->post('admin/print_pdf', 'Admin::print_pdf');
+$routes->post('admin/download_pdf', 'Admin::download_pdf');
+$routes->post('admin/download_pdf_sections', 'Admin::download_pdf_sections');
+
+$routes->get('admin/manage_reviewed_surveys', 'Admin::manage_reviewed_surveys');
+$routes->get('admin/delete_survey', 'Admin::delete_survey');
+$routes->get('admin/manage_submitted_surveys', 'Admin::manage_submitted_surveys');
+$routes->get('admin/manage_school_reports', 'Admin::manage_school_reports');
+
+$routes->post('admin/take_a_copy', 'Admin::take_a_copy');
+$routes->post('admin/add_comment_specifics', 'Admin::add_comment_specifics');
+$routes->post('admin/show_existing_comments', 'Admin::show_existing_comments');
+
+$routes->get('admin/delete_report_template/(:num)', 'Admin::delete_report_template/$1');
+$routes->get('admin/delete_report_attachment/(:num)', 'Admin::delete_report_attachment/$1');
+$routes->get('admin/manage_district_reports', 'Admin::manage_district_reports');
+
+$routes->get('admin/manage_reports', 'Admin::manage_reports');
+
+$routes->get('admin/view_result_reports', 'Admin::view_result_reports');
+$routes->post('admin/reports_result', 'Admin::reports_result');
+$routes->post('admin/school_lists_checkbox', 'Admin::school_lists_checkbox');
+$routes->post('admin/set_due_dates', 'Admin::set_due_dates');
+
+
+
+
+
+
 
 
 

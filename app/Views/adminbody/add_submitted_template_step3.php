@@ -1138,6 +1138,7 @@ $(window).click(function(e) {
 	        	success:function(result)
 	        	{
 	        		$("body").removeClass("loading");
+              console.log(result);
 	        		printJS(base_url+'papers/admin/'+result);
 	        	}
 	        })
