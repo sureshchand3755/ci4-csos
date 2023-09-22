@@ -89,6 +89,12 @@ $routes->get('admin/view_result_reports', 'Admin::view_result_reports');
 $routes->post('admin/reports_result', 'Admin::reports_result');
 $routes->post('admin/school_lists_checkbox', 'Admin::school_lists_checkbox');
 $routes->post('admin/set_due_dates', 'Admin::set_due_dates');
+$routes->post('admin/filter_by_district_search', 'Admin::filter_by_district_search');
+$routes->post('admin/filter_by_school_search', 'Admin::filter_by_school_search');
+$routes->get('admin/principal_apportionment', 'Admin::principal_apportionment');
+$routes->post('admin/get_reports_from_school', 'Admin::get_reports_from_school');
+$routes->post('admin/change_date_report', 'Admin::change_date_report');
+$routes->post('admin/update_principal_apportionment', 'Admin::update_principal_apportionment');
 
 
 

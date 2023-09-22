@@ -1,3 +1,6 @@
+<?php 
+$this->db = \Config\Database::connect();
+?>
 <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
@@ -456,7 +459,7 @@
 
 										{
 
-											$school_details = $this->Madmin->Select_Val_Id('go_schools',$attachment['school_id']);
+											$school_details = $this->db->table('go_schools')->select('*')->where('id', $template['school_id'])->get()->getRowArray();
 
 											$explodefile = explode("||",$attachment['filename']);
 
@@ -522,7 +525,7 @@
 
 														</td>
 
-														<td><?php echo $school_details['school_name']; ?></td>
+														<td><?php echo isset($school_details['school_name'])?$school_details['school_name']:''; ?></td>
 
 														<td>
 
@@ -1030,7 +1033,7 @@ $(window).click(function(e) {
 
 		var template_id = $(".choose_template").val();
 
-		var district_id = "<?php echo $_GET['district_id']; ?>";
+		var district_id = "<?php echo isset($_GET['district_id'])?$_GET['district_id']:0; ?>";
 
 		if(template_id == "")
 

@@ -1,3 +1,6 @@
+<?php 
+$this->db = \Config\Database::connect();
+?>
 <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
@@ -464,10 +467,9 @@
 
                             <?php
 
-                            $reports = $this->db->select('*')->from('principal_attachments')->where('type',$_GET['type'])->get()->result_array();
+                            $reports = $this->db->table('principal_attachments')->select('*')->where('type',$_GET['type'])->get()->getResultArray();
 
                             $i = 1;
-
                             if(!empty($reports))
 
                             {
@@ -478,7 +480,7 @@
 
                                     $explodefile = explode("||",$report['filename']);
 
-                                    $school_details = $this->Madmin->Select_Val_Id('go_schools',$report['school_id']);
+                                    // $school_details = $this->db->table('go_schools')->select('*')->where('id', $template['school_id'])->get()->getRowArray();
 
                                     if(!empty($explodefile))
 
@@ -495,7 +497,7 @@
                                             $impfilename = implode(" ",$expfilename);
 
 
-
+                                            $schoolname = isset($school_details['school_name'])?$school_details['school_name']:'';
 
 
                                             echo '<tr class="report_tr_'.$report['id'].'">
@@ -504,7 +506,7 @@
 
                                                 <td>'.$impfilename.'</td>
 
-                                                <td>'.$school_details['school_name'].'</td>
+                                                <td>'.$schoolname.'</td>
 
                                                 <td><h6>Report Submitted By School <br/><br/><span class="change_date_span">'.date('m/d/Y',strtotime($report['updatetime'])).'</span><a href="javascript:" class="fa fa-pencil edit_date" data-element="'.$report['id'].'" data-date="'.date('m/d/Y',strtotime($report['updatetime'])).'" style="margin-left:10px"></a></h6></td>
 
@@ -1022,7 +1024,7 @@
 
             var template_id = $(".choose_template").val();
 
-            var school_id = "<?php echo $_GET['school_id']; ?>";
+            var school_id = "<?php echo isset($_GET['school_id'])?$_GET['school_id']:0; ?>";
 
             if(template_id == "")
 

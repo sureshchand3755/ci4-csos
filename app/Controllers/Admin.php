@@ -710,7 +710,101 @@ class Admin extends BaseController
 		}
 		echo json_encode(array("output" => $output,"charter_petition" => $charter_petition,"mou" => $mou));
 	}
+	public function update_principal_apportionment()
+	{
+		$type = $this->request->getVar('hidden_type');
+		$upload_dir = 'uploads/admin';
+		if (!file_exists($upload_dir)) {
+			mkdir($upload_dir);
+		}
+		$upload_dir = $upload_dir.'/'.time();
+		if (!file_exists($upload_dir)) {
+			mkdir($upload_dir);
+		}
+		$total = count($_FILES['file']['name']);
+		$fname = '';
+		for($i=0;$i < $total;$i++) {
+			$filename = $_FILES['file']['name'][$i];
+			$tmp_name = $_FILES['file']['tmp_name'][$i];
+			move_uploaded_file($tmp_name,$upload_dir.'/'.$filename);
+			if($fname == "")
+			{
+				$fname = $filename;
+			}
+			else{
+				$fname = $fname.'||'.$filename;
+			}
+		}
+		if($type == "11") { $typeval = 'Annual Adopted Budget'; }
+        elseif($type == "12") { $typeval = 'Unaudited Actuals'; }
+        elseif($type == "13") { $typeval = 'First Interim'; }
+        elseif($type == "14") { $typeval = 'Second Interim'; }
+        elseif($type == "15") { $typeval = 'LCAP'; }
+        elseif($type == "16") { $typeval = 'Third Interim (Annual)'; }
+        elseif($type == "1") { $typeval = 'Principal attach (P 1)'; }
+		elseif($type == "2") { $typeval = 'Principal attach (P 2)'; }
+		elseif($type == "3") { $typeval = 'Principal attach (P 3)'; }
+		elseif($type == "4") { $typeval = 'Annual Audit'; }
+		elseif($type == "5") { $typeval = 'Report Review'; }
+		elseif($type == "6") { $typeval = 'FCMAT Calculator'; }
+		elseif($type == "7") { $typeval = 'Misc'; }
+		elseif($type == "8") { $typeval = 'Misc'; }
+		elseif($type == "9") { $typeval = 'Expanded Learning Opportunities Grant Plan'; }
+        else { $typeval = ''; }
 
+		$inputData['url'] = $upload_dir;
+		$inputData['filename'] = $fname;
+		$inputData['type'] = $type;
+		$schools = $this->request->getVar('school_select');
+		if(!empty($schools))
+		{
+			foreach($schools as $school)
+			{
+				$school_details = $this->commonModel->Select_Val_Id('go_schools',$school);
+				$inputData['district_id'] = $school_details['district_id'];
+				$inputData['school_id'] = $school;
+				$lastinsertId = $this->commonModel->Insert_Values('principal_attachments',$inputData);
+				$task_id = $lastinsertId;		
+
+				$report = $this->commonModel->Select_Val_Id('principal_attachments',$task_id);
+				$datanotify['report_id'] = $task_id;
+				$datanotify['message'] = '<p>'.$typeval.' Report has been submitted from Super Admin</p>';
+				$datanotify['type'] = 1;
+				$datanotify['created_by'] = 1;
+				$datanotify['user_id'] = 1;
+				$datanotify['admin'] = 0;
+				$datanotify['district_id'] = $school_details['district_id'];
+				$datanotify['school_id'] = $school;
+				$datanotify['status'] = 0;
+				$datanotify['district_status'] = 1;
+				$datanotify['school_status'] = 1;
+				$this->commonModel->Insert_Values('notifications',$datanotify);
+				$district_subject = $typeval.' Report has been submitted from Super Admin';
+				$school_subject = $typeval.' Report has been submitted from Super Admin';
+
+				$district_message = '<p style="font-family:Arial, Helvetica, sans-serif; font-size:13px;">The '.$typeval.' has been uploaded by Super Admin for the school '.$school_details['school_name'].'. Please login to the CSOS website to view the submitted Report.</p>';
+				$school_message = '<p style="font-family:Arial, Helvetica, sans-serif; font-size:13px;">The '.$typeval.' has been uploaded by Super Admin for your School. Please login to the CSOS website to view the submitted Report.</p>';
+				$this->send_email_to_district_school($school_details['district_id'],$school,$district_subject,$school_subject,$district_message,$school_message);
+			}
+		}
+		session()->setFlashdata('notif_success', 'File Attached Successfully');
+		return $this->response->redirect(site_url('admin/principal_apportionment?type='.$type.''));
+	}
+	public function change_date_report()
+	{
+		$id = $this->request->getVar('id');
+		$dateexp = explode('/',$this->request->getVar('date'));
+		$date = $dateexp[2].'-'.$dateexp[0].'-'.$dateexp[1];
+		$type = $this->request->getVar('type');
+		$data['updatetime'] = $date.' 00:00:00';
+		if($type == "1")
+		{
+			$this->commonModel->Update_Values('reports',$data,$id);
+		}
+		else{
+			$this->commonModel->Update_Values('principal_attachments',$data,$id);
+		}
+	}
 	public function manage_templates()
 	{
 		$data = $this->commonData('ADMIN');
@@ -2515,7 +2609,7 @@ class Admin extends BaseController
 	public function manage_district_reports()
 	{
 		$data = $this->commonData();
-		$district_id = $_GET['district_id'];
+		$district_id = isset($_GET['district_id'])?$_GET['district_id']:0;
 		$data['title']= 'ADMIN';
 		$config['base_url'] = BASE_URL.'admin/manage_district_reports/';
 		$data['select_templates'] = $this->db->table('reports')->select('*')->where('school_id',0)->where('deletestatus',0)->get()->getResultArray();
@@ -2524,6 +2618,283 @@ class Admin extends BaseController
 		$data['master_schools'] = $this->db->table('go_schools')->select('*')->where('district_id',$district_id)->get()->getResultArray();
 		$data['districts']= $this->db->table('go_district_admin')->select('*')->where('status',0)->get()->getResultArray();
 		$this->adminBodyTemplate('adminbody/manage_district_reports',$data);
+	}
+	public function filter_by_district_search()
+	{
+		$category = $this->request->getVar('category');
+		$school_id = $this->request->getVar('school_id');
+		$district_id = $this->request->getVar('district_id');
+		$year = $this->request->getVar('year');
+		if($year == "")
+		{
+			$from = '';
+			$to = '';
+		}
+		else{
+			$curr_year = $year;
+			$next_year = $year + 1;
+			$from = $year.'-07-01 00:00:00';
+			$to = $next_year.'-06-30 23:59:00';
+		}
+		if($category == "a" || $category == "b" || $category == "c" || $category == "d" || $category == "e" || $category == "f" || $category == "g" || $category == "h" || $category == "i" || $category == "j" || $category == "k" || $category == "l" || $category == "m" || $category == "n" || $category == "o") {
+			if($category == "a") { $category = "1"; }
+			elseif($category == "b") { $category = "2"; }
+			elseif($category == "c") { $category = "3"; }
+			elseif($category == "d") { $category = "4"; }
+			elseif($category == "e") { $category = "5"; }
+			elseif($category == "f") { $category = "6"; }
+			elseif($category == "g") { $category = "7"; }
+			elseif($category == "h") { $category = "8"; }
+			elseif($category == "o") { $category = "9"; }
+			elseif($category == "i") { $category = "11"; }
+			elseif($category == "j") { $category = "12"; }
+			elseif($category == "k") { $category = "13"; }
+			elseif($category == "l") { $category = "14"; }
+			elseif($category == "n") { $category = "15"; }
+			elseif($category == "m") { $category = "16"; }
+			$get_reports = array();
+			if($school_id == "" || $school_id == "all")
+			{
+				if($year == "")
+				{
+					$get_attachments = $this->db->table('principal_attachments')->select('*')->where('type',$category)->where('district_id',$district_id)->get()->getResultArray();
+				}
+				else{
+					$get_attachments = $this->db->table('principal_attachments')->select('*')->where('type',$category)->where('district_id',$district_id)->where('updatetime >=',$from)->where('updatetime <=',$to)->get()->getResultArray();
+				}
+				
+			}
+			else{
+				if($year == "")
+				{
+					$get_attachments = $this->db->table('principal_attachments')->select('*')->where('type',$category)->where('school_id',$school_id)->get()->getResultArray();
+				}
+				else{
+					$get_attachments = $this->db->table('principal_attachments')->select('*')->where('type',$category)->where('school_id',$school_id)->where('updatetime >=',$from)->where('updatetime <=',$to)->get()->getResultArray();
+				}
+			}
+		}
+		else{
+			if($school_id == "" || $school_id == "all")
+			{
+				if($year == "")
+				{
+					$get_attachments = $this->db->table('principal_attachments')->select('*')->where('district_id',$district_id)->get()->getResultArray();
+				}
+				else{
+					$get_attachments = $this->db->table('principal_attachments')->select('*')->where('district_id',$district_id)->where('updatetime >=',$from)->where('updatetime <=',$to)->get()->getResultArray();
+				}
+				
+			}
+			else{
+				if($year == "")
+				{
+					$get_attachments = $this->db->table('principal_attachments')->select('*')->where('school_id',$school_id)->get()->getResultArray();
+				}
+				else{
+					$get_attachments = $this->db->table('principal_attachments')->select('*')->where('school_id',$school_id)->where('updatetime >=',$from)->where('updatetime <=',$to)->get()->getResultArray();
+				}
+			}
+		}
+		
+		$output = '';
+		$i = 1;
+		if(count($get_attachments))
+		{
+			$i = $i++;
+			foreach($get_attachments as $attach)
+			{
+				$school_details = $this->commonModel->Select_Val_Id('go_schools',$attach['school_id']);
+				$explodefile = explode("||",$attach['filename']);
+                if(!empty($explodefile))
+                {
+                    foreach($explodefile as $exp)
+                    {
+						$expfilename = explode(".",$exp);
+						array_pop($expfilename);
+						$impfilename = implode(" ",$expfilename);
+						
+						$output.='<tr class="attach_tr_'.$attach['id'].'">
+							<td>'.$i.'</td>
+							<td>'.$impfilename.'</td>
+							<td>';
+								if($attach['type'] == "1") { $output.='Principal attach (P 1)'; }
+								elseif($attach['type'] == "2") { $output.='Principal attach (P 2)'; }
+								elseif($attach['type'] == "3") { $output.='Principal attach (P 3)'; }
+								elseif($attach['type'] == "4") { $output.='Annual Audit'; }
+								elseif($attach['type'] == "5") { $output.='Report Review'; }
+								elseif($attach['type'] == "6") { $output.='FCMAT Calculator'; }
+								elseif($attach['type'] == "7") { $output.='Misc Report'; }
+								elseif($attach['type'] == "8") { $output.='Misc Report'; }
+								elseif($attach['type'] == "9") { $output.='Expanded Learning Opportunities Grant Plan'; }
+								elseif($attach['type'] == "11") { $output.='Annual Adopted Budget'; }
+								elseif($attach['type'] == "12") { $output.='Unaudited Actuals'; }
+								elseif($attach['type'] == "13") { $output.='First Interim'; }
+								elseif($attach['type'] == "14") { $output.='Second Interim'; }
+								elseif($attach['type'] == "15") { $output.='LCAP'; }
+								elseif($attach['type'] == "16") { $output.='Third Interim (Annual)'; }
+							$output.='</td>
+							<td>'.$school_details['school_name'].'</td>
+							<td>
+								<h6>Report Submitted By School <br/><br/><span class="change_date_span">'.date('m/d/Y',strtotime($attach['updatetime'])).'</span><a href="javascript:" class="fa fa-pencil edit_date" data-element="'.$attach['id'].'" data-date="'.date('m/d/Y',strtotime($attach['updatetime'])).'" style="margin-left:10px"></a></h6>
+							</td>
+							<td>';
+								$exp_attachment = explode(".",$exp);
+								if(end($exp_attachment) == "pdf")
+								{
+									$output.='<a href="javascript:" data-src="'.$attach['url'].'/'.$exp.'" class="fa fa-eye view_pdf" title="View Report" style="font-size:23px"></a>';
+								}
+								else{
+									$output.='<a href="'.BASE_URL.$attach['url'].'/'.$exp.'" class="fa fa-eye view_pdf" title="View Report" download style="font-size:23px"></a>';
+								}
+								$output.='
+								<a href="javascript:" data-src="'.$attach['url'].'/'.$exp.'" class="fa fa-comment link_to_task_specifics" data-element="'.$attach['id'].'" title="Comment Report" style="font-size:23px"></a>
+								<a href="'.BASE_URL.'admin/delete_report_attachment/'.$attach['id'].'?district_id='.$attach['district_id'].'" class="fa fa-trash delete_report_attach" title="Delete Report" style="font-size:23px"></a>
+							</td>
+						</tr>';
+						$i++;
+					}
+				}
+			}
+		}
+		if($i == 1){
+			$output.='<tr><td colspan="6">No Datas found</td></tr>';
+		}
+		echo $output;
+	}
+	public function filter_by_school_search()
+	{
+		$category = $this->request->getVar('category');
+		$year = $this->request->getVar('year');
+		$school_id = $this->request->getVar('school_id');
+		if($year == "")
+		{
+			$from = '';
+			$to = '';
+		}
+		else{
+			$curr_year = $year;
+			$next_year = $year + 1;
+			$from = $year.'-07-01 00:00:00';
+			$to = $next_year.'-06-30 23:59:00';
+		}
+		
+		if($category == "a" || $category == "b" || $category == "c" || $category == "d" || $category == "e" || $category == "f" || $category == "g" || $category == "h" || $category == "i" || $category == "j" || $category == "k" || $category == "l" || $category == "m" || $category == "n" || $category == "o") {
+			if($category == "a") { $category = "1"; }
+			elseif($category == "b") { $category = "2"; }
+			elseif($category == "c") { $category = "3"; }
+			elseif($category == "d") { $category = "4"; }
+			elseif($category == "e") { $category = "5"; }
+			elseif($category == "f") { $category = "6"; }
+			elseif($category == "g") { $category = "7"; }
+			elseif($category == "h") { $category = "8"; }
+			elseif($category == "o") { $category = "9"; }
+			elseif($category == "i") { $category = "11"; }
+			elseif($category == "j") { $category = "12"; }
+			elseif($category == "k") { $category = "13"; }
+			elseif($category == "l") { $category = "14"; }
+			elseif($category == "n") { $category = "15"; }
+			elseif($category == "m") { $category = "16"; }
+			$get_reports = array();
+			if($year == "")
+			{
+				$get_attachments = $this->db->table('principal_attachments')->select('*')->where('type',$category)->where('school_id',$school_id)->get()->getResultArray();
+			}
+			else{
+				$get_attachments = $this->db->table('principal_attachments')->select('*')->where('type',$category)->where('school_id',$school_id)->where('updatetime >=',$from)->where('updatetime <=',$to)->get()->getResultArray();
+			}
+		}
+		else{
+			if($year == "")
+			{
+				$get_attachments = $this->db->table('principal_attachments')->select('*')->where('school_id',$school_id)->get()->getResultArray();
+			}
+			else{
+				$get_attachments = $this->db->table('principal_attachments')->select('*')->where('school_id',$school_id)->where('updatetime >=',$from)->where('updatetime <=',$to)->get()->getResultArray();
+			}
+			
+			$get_reports = array();
+		}
+		$output = '';
+		$i = 1;
+		if(count($get_attachments))
+		{
+			$i = $i++;
+			foreach($get_attachments as $attach)
+			{
+				$school_details = $this->commonModel->Select_Val_Id('go_schools',$attach['school_id']);
+				$explodefile = explode("||",$attach['filename']);
+                if(!empty($explodefile))
+                {
+                    foreach($explodefile as $exp)
+                    {
+						$expfilename = explode(".",$exp);
+						array_pop($expfilename);
+						$impfilename = implode(" ",$expfilename);
+						
+						$output.='<tr class="attach_tr_'.$attach['id'].'">
+							<td>'.$i.'</td>
+							<td>'.$impfilename.'</td>
+							<td>';
+								if($attach['type'] == "1") { $output.='Principal attach (P 1)'; }
+								elseif($attach['type'] == "2") { $output.='Principal attach (P 2)'; }
+								elseif($attach['type'] == "3") { $output.='Principal attach (P 3)'; }
+								elseif($attach['type'] == "4") { $output.='Annual Audit'; }
+								elseif($attach['type'] == "5") { $output.='Report Review'; }
+								elseif($attach['type'] == "6") { $output.='FCMAT Calculator'; }
+								elseif($attach['type'] == "7") { $output.='Misc Report'; }
+								elseif($attach['type'] == "8") { $output.='Misc Report'; }
+								elseif($attach['type'] == "9") { $output.='Expanded Learning Opportunities Grant Plan'; }
+								elseif($attach['type'] == "11") { $output.='Annual Adopted Budget'; }
+								elseif($attach['type'] == "12") { $output.='Unaudited Actuals'; }
+								elseif($attach['type'] == "13") { $output.='First Interim'; }
+								elseif($attach['type'] == "14") { $output.='Second Interim'; }
+								elseif($attach['type'] == "15") { $output.='LCAP'; }
+								elseif($attach['type'] == "16") { $output.='Third Interim (Annual)'; }
+							$output.='</td>
+							<td>
+								<h6>Report Submitted By School <br/><br/><span class="change_date_span">'.date('m/d/Y',strtotime($attach['updatetime'])).'</span><a href="javascript:" class="fa fa-pencil edit_date" data-element="'.$attach['id'].'" data-date="'.date('m/d/Y',strtotime($attach['updatetime'])).'" style="margin-left:10px"></a></h6>
+							</td>
+							<td>';
+								$exp_attachment = explode(".",$exp);
+								if(end($exp_attachment) == "pdf")
+								{
+									$output.='<a href="javascript:" data-src="'.$attach['url'].'/'.$exp.'" class="fa fa-eye view_pdf" title="View Report" style="font-size:23px"></a>';
+								}
+								else{
+									$output.='<a href="'.BASE_URL.$attach['url'].'/'.$exp.'" class="fa fa-eye view_pdf" title="View Report" download style="font-size:23px"></a>';
+								}
+								$output.='
+								<a href="javascript:" data-src="'.$attach['url'].'/'.$exp.'" class="fa fa-comment link_to_task_specifics" data-element="'.$attach['id'].'" title="Comment Report" style="font-size:23px"></a>
+								<a href="'.BASE_URL.'admin/delete_report_attachment/'.$attach['id'].'?district_id='.$attach['district_id'].'" class="fa fa-trash delete_report_attach" title="Delete Report" style="font-size:23px"></a>
+							</td>
+						</tr>';
+						$i++;
+					}
+				}
+			}
+		}
+		if($i == 1){
+			$output.='<tr><td colspan="6">No Datas found</td></tr>';
+		}
+		echo $output;
+	}
+	public function principal_apportionment()
+	{
+		$data = $this->commonData();
+		if(isset($_GET['notify']))
+		{
+			$id = $_GET['notify'];
+			$dataval['status'] = 0;
+			$this->commonModule->Update_Values('notifications',$dataval,$id);
+		}
+		$type = $this->request->getVar('type');
+		$data['title']= 'ADMIN';
+		$data['type']= $type;
+		$config['base_url'] = BASE_URL.'admin/principal_apportionment/';
+		$data['districts']= $this->db->table('go_district_admin')->select('*')->where('status',0)->get()->getResultArray();
+		
+		$this->adminBodyTemplate('adminbody/principal_apportionment',$data);
 	}
 	public function take_a_copy()
 	{
@@ -2625,11 +2996,11 @@ class Admin extends BaseController
 			$district_id = $this->request->getVar('district_id');
 		}
 		else{
-			$school_details = $this->Madmin->Select_Val_Id('go_schools',$school_id);
+			$school_details = $this->commonModel->Select_Val_Id('go_schools',$school_id);
 			$district_id = $school_details['district_id'];
 		}
-		$template_details = $this->Madmin->Select_Val_Id('reports',$template_id);
-		$forms = $this->db->select('*')->from('report_forms')->where('template_id',$template_id)->get()->result_array();
+		$template_details = $this->commonModel->Select_Val_Id('reports',$template_id);
+		$forms = $this->db->select('*')->from('report_forms')->where('template_id',$template_id)->get()->getResultArray();
 		if(count($template_details))
 		{
 			$data['template'] = $template_details['template'];
@@ -2652,8 +3023,8 @@ class Admin extends BaseController
 			$data['title3'] = $template_details['title3'];
 			$data['attachment'] = $template_details['attachment'];
 			$data['type'] = $template_details['type'];
-			$this->Madmin->Insert_Values('reports',$data);
-			$new_id = mysql_insert_id();
+			$lastinsertId = $this->commonModel->Insert_Values('reports',$data);
+			$new_id = $lastinsertId;
 			if(count($forms))
 			{
 				foreach($forms as $form)
@@ -2665,7 +3036,7 @@ class Admin extends BaseController
 						$datatemplate['no_content'] = $form['no_content'];
 						$datatemplate['attachment'] = $form['attachment'];
 						$datatemplate['type'] = $form['type'];
-						$this->Madmin->Insert_Values('report_forms',$datatemplate);
+						$this->commonModel->Insert_Values('report_forms',$datatemplate);
 				}
 			}
 			echo json_encode(array("template_id" => $new_id, "type" => $template_details['type']));
@@ -2812,6 +3183,87 @@ class Admin extends BaseController
 		$config['base_url'] = BASE_URL.'admin/manage_reports/';
 		$data['select_reports'] = $this->db->table('reports')->select('*')->where('master',1)->orderBy('order','asc')->get()->getResultArray();
 		$this->adminBodyTemplate('adminbody/manage_reports',$data);
+	}
+	public function get_reports_from_school()
+	{
+		$school_id = $this->request->getVar('school_id');
+		$year = $this->request->getVar('year');
+		$type = $this->request->getVar('type');
+		if($year == "")
+		{
+			$from = '';
+			$to = '';
+		}
+		else{
+			$curr_year = $year;
+			$next_year = $year + 1;
+			$from = $year.'-07-01 00:00:00';
+			$to = $next_year.'-06-30 23:59:00';
+		}
+		$output = '';
+		if($school_id == "all")
+		{
+			if($year == "")
+			{
+				$reports = $this->db->table('principal_attachments')->select('*')->where('type',$type)->where('school_id !=',0)->get()->getResultArray();
+			}
+			else{
+				$reports = $this->db->table('principal_attachments')->select('*')->where('type',$type)->where('school_id !=',0)->where('updatetime >=',$from)->where('updatetime <=',$to)->get()->getResultArray();
+			}
+		}
+		else{
+			if($year == "")
+			{
+				$reports = $this->db->table('principal_attachments')->select('*')->where('type',$type)->where('school_id',$school_id)->get()->getResultArray();
+			}
+			else{
+				$reports = $this->db->table('principal_attachments')->select('*')->where('type',$type)->where('school_id',$school_id)->where('updatetime >=',$from)->where('updatetime <=',$to)->get()->getResultArray();
+			}
+		}
+		
+        $i = 1;
+        if(!empty($reports))
+        {
+            foreach($reports as $report)
+            {
+                $school_details = $this->commonModel->Select_Val_Id('go_schools',$report['school_id']);
+                $explodefile = explode("||",$report['filename']);
+                if(!empty($explodefile))
+                {
+                    foreach($explodefile as $exp)
+                    {
+		                $expfilename = explode(".",$exp);
+		                array_pop($expfilename);
+		                $impfilename = implode(" ",$expfilename);
+		                $output.='<tr class="report_tr_'.$report['id'].'">
+		                    <td>'.$i.'</td>
+		                    <td>'.$impfilename.'</td>
+		                    <td>'.$school_details['school_name'].'</td>
+		                    <td>
+		                        <h6>Report Submitted By School <br/><br/><span class="change_date_span">'.date('m/d/Y',strtotime($report['updatetime'])).'</span><a href="javascript:" class="fa fa-pencil edit_date" data-element="'.$report['id'].'" data-date="'.date('m/d/Y',strtotime($report['updatetime'])).'" style="margin-left:10px"></a></h6>
+		                    </td>
+		                    <td>';
+		                        $exp_attachment = explode(".",$exp);
+		                        if(end($exp_attachment) == "pdf")
+		                        {
+		                            $output.='<a href="javascript:" data-src="'.$report['url'].'/'.$exp.'" class="fa fa-eye view_pdf" title="View Report" style="font-size:23px"></a>';
+		                        }
+		                        else{
+		                            $output.='<a href="'.BASE_URL.$report['url'].'/'.$exp.'" class="fa fa-eye" title="View Report" download style="font-size:23px"></a>';
+		                        }
+		                        $output.='<a href="javascript:" data-src="'.$report['url'].'/'.$exp.'" class="fa fa-comment link_to_task_specifics" data-element="'.$report['id'].'" title="View Report" style="font-size:23px"></a>
+		                        <a href="'.BASE_URL."admin/delete_report_attachment/".$report['id']."?school_id=".$report['school_id'].'" class="fa fa-trash delete_report_attach" title="Delete Report" style="font-size:23px"></a>
+		                    </td>
+		                </tr>';
+		                $i++;
+		            }
+		        }
+            }
+        }
+        else{
+            $output.='<tr><td colspan="5">No Reports Found</td></tr>';
+        }
+        echo $output;
 	}
 	public function view_result_reports()
 	{
