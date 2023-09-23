@@ -12,13 +12,25 @@
 }
 </style>
 <?php
-$method = $subsegment;
+$method = $this->router->fetch_method();
 if($method == "addtemplate" || $method == "addtemplate_step2" || $method == "addtemplate_step3" || $method == "add_submitted_template" || $method == "add_submitted_template_step2" || $method == "add_submitted_template_step3") { } else { ?>
 <div style="margin-top:40px;width:100%">&nbsp;</div>
 <div class="footer">
-	<a href="<?php echo BASE_URL.'admin/terms_of_use'; ?>">Terms of Use</a> | 
-	<a href="<?php echo BASE_URL.'admin/privacy_policy'; ?>">Privacy Policy</a>
+	<a href="<?php echo BASE_URL.'school/terms_of_use'; ?>">Terms of Use</a> | 
+	<a href="<?php echo BASE_URL.'school/privacy_policy'; ?>">Privacy Policy</a>
 	<br/>
 	<spam>All Rights Reserved © Copyright <?php echo date('Y'); ?>. Academy & School Resources</spam>
 </div>
 <?php } ?>
+<script>
+$(window).click(function(e){
+    if($(e.target).hasClass('alert_handbook_alert'))
+    {
+        alert("No Handbook found");
+    }
+    if($(e.target).hasClass('alert_fiscal_alert'))
+    {
+        alert("No Report found");
+    }
+});
+</script>

@@ -24,8 +24,11 @@ class Home extends BaseController
             if (!$this->validate($rules)) {
                 return $this->admintemplate('common/login'); 
             }else{
-                $inputEmail 		= 'Patrick';//htmlspecialchars($this->request->getVar('email', FILTER_UNSAFE_RAW));
-                $inputPassword 		= 'admin';// htmlspecialchars($this->request->getVar('password', FILTER_UNSAFE_RAW));
+                // $inputEmail 		= 'Patrick';
+                // $inputPassword 		= 'admin';
+                $inputEmail 		= htmlspecialchars($this->request->getVar('email', FILTER_UNSAFE_RAW));
+                $inputPassword 		= htmlspecialchars($this->request->getVar('password', FILTER_UNSAFE_RAW));
+                
                 $user= $this->adminModel->getUser(username: $inputEmail);
                 if ($user) {
                     $password		= $user['password'];
@@ -45,10 +48,76 @@ class Home extends BaseController
                 } else {
                     session()->setFlashdata('notif_error', '<b>Your Username or Password is Wrong!</b> ');
                     return redirect()->to(base_url());
-                }
-                d($user);
+                }                
             }
         }
         
     }
+    public function sdLogin(){       
+        if ($this->request->getMethod() == "post") {
+            $rules = [
+                'email' => 'required',
+            ];
+            if (!$this->validate($rules)) {
+                return $this->schoolTemplate('schoolbody/login'); 
+            }else{
+                // $inputEmail 		= 'Patrick';
+                // $inputPassword 		= 'admin';
+                $inputData['username'] 		= htmlspecialchars($this->request->getVar('email', FILTER_UNSAFE_RAW));
+                $inputData['password'] 		= htmlspecialchars($this->request->getVar('password', FILTER_UNSAFE_RAW));
+                $usertype =  $this->request->getVar('usertype');
+                if($usertype == 1){
+					$result = $this->schoolModel->SchoolValidateLogin($inputData);
+                    if(count($result) > 0){
+						session()->set([
+                            'gowritedistrictadmin_Userid'		=> $result['id'],
+                            'gowritedistrictadmin_Username'		=> $result['username'],
+                            'gowritedistrictadmin_Fullname'		=> $result['fullname'],
+                            'isLoggedIn' 	=> TRUE
+                        ]);
+						// $remember_me = $this->input->post('remember_me');
+						// if($remember_me=='1')
+						// {
+						// $year = time() + 31536000;
+						// setcookie('ad_username',$this->input->post('username'),$year);
+						// setcookie('ad_password',$this->encrypt->encode($this->input->post('password')),$year);
+						// }
+						redirect(base_url()."school/dashboard");
+					}
+					else{
+						session()->setFlashdata('notif_error', 'invalid Username and Password');
+						redirect(base_url()."school/login");
+					}
+                }else{
+                    $result = $this->districtModel->DistrictValidateLogin($inputData);
+                    if(count($result) > 0){
+                        session()->set([
+                            'gowritedistrictadmin_Userid'		=> $result['id'],
+                            'gowritedistrictadmin_Username'		=> $result['username'],
+                            'gowritedistrictadmin_Fullname'		=> $result['fullname'],
+                            'isLoggedIn' 	=> TRUE
+                        ]);
+						// $remember_me = $this->input->post('remember_me');
+						// if($remember_me=='1')
+						// {
+                        //     $year = time() + 31536000;
+                        //     setcookie('ad_username',$this->input->post('username'),$year);
+                        //     setcookie('ad_password',$this->encrypt->encode($this->input->post('password')),$year);
+						// }
+						return redirect(base_url()."district/dashboard");
+					}
+					else{
+						session()->setFlashdata('notif_error', 'invalid Username and Password');
+						return redirect(base_url()."school/login");
+					}
+                }              
+            }
+        }
+        
+    }
+    public function logout()
+	{
+		$this->session->destroy();
+		return redirect()->to(base_url('administrator'));
+	}
 }

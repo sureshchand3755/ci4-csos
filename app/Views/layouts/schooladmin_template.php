@@ -30,7 +30,6 @@
 
     <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>assets/dropzone/dist/dropzone.css" />
     <script type="text/javascript" src="<?php echo BASE_URL; ?>assets/dropzone/dist/dropzone.js"></script>
-
     
     <script src="<?php echo BASE_URL; ?>assets/admin/vendors/tether/dist/js/tether.min.js"></script>
     <script src="<?php echo BASE_URL; ?>assets/admin/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
@@ -79,12 +78,36 @@
 }
 </style>
 <body class="theme-default">
-    	<div class="main">
-			<main class="content">
-				<div class="container-fluid p-0">
-                	<?= $this->renderSection('content'); ?>
-				</div>
-			</main>
-		</div>
+    <div class="main">
+        <main class="content">
+            <div class="container-fluid p-0">
+                <?= $this->renderSection('content'); ?>
+            </div>
+        </main>
+    </div>
+    <div class="modal" id="show_pdf_modal_header" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <iframe src="" style="width:100%;height:800px" class="show_iframe_pdf_header"></iframe>
+        </div>
+      </div>
+    </div>
 </body>
+<script>
+$(window).click(function(e) {
+    if($(e.target).hasClass('view_pdf_header'))
+    {
+        var src = $(e.target).attr("data-src");
+        src = src.replace("=","@");
+        src = src.replace("=","@");
+        src = src.replace("=","@");
+        src = src.replace("=","@");
+        src = src.replace("=","@");
+        
+        src = "<?php echo BASE_URL.'uploads/index.html?file=../'; ?>"+src;
+        $(".show_iframe_pdf_header").attr("src",src);
+        $("#show_pdf_modal_header").modal("show");
+    }
+});
+</script>
 </html>

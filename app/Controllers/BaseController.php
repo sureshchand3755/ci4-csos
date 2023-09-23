@@ -9,6 +9,8 @@ use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use App\Models\AdminModel;
+use App\Models\DistrictModel;
+use App\Models\SchoolModel;
 use App\Models\CommonModel;
 
 /**
@@ -41,6 +43,8 @@ abstract class BaseController extends Controller
     protected $data 	= [];
     protected $adminModel;
     protected $commonModel;
+    protected $districtModel;
+    protected $schoolModel;
     protected $session;
 	protected $segment;
 	protected $db;
@@ -76,7 +80,9 @@ abstract class BaseController extends Controller
         $this->language     = \Config\Services::language();       
 		$this->adminModel  	= new AdminModel();
 		$this->commonModel  = new CommonModel();
-		$user 				= $this->adminModel->getUser(username: session()->get('username'));
+		$this->districtModel  = new DistrictModel();
+		$this->schoolModel  = new SchoolModel();
+		$user 				= $this->adminModel->getUser(username: session()->get('gowriteadmin_Username'));
 		$segment 			= $this->request->uri->getSegment(1);
 		if ($segment) {
 			$subsegment 	= $this->request->uri->getSegment(2);
@@ -92,9 +98,19 @@ abstract class BaseController extends Controller
 
         // E.g.: $this->session = \Config\Services::session();
     }
-    public function admintemplate(string $page)
+    public function adminTemplate(string $page)
     {
         echo view('layouts/admin_template');
+        echo view($page);
+    }
+    public function districtTemplate(string $page)
+    {
+        echo view('layouts/districtadmin_template');
+        echo view($page);
+    }
+    public function schoolTemplate(string $page)
+    {
+        echo view('layouts/schooladmin_template');
         echo view($page);
     }
     
@@ -104,5 +120,19 @@ abstract class BaseController extends Controller
         echo view('layouts/admin/header', $data);
         echo view($page, $data);
         echo view('layouts/admin/footer', $data);
+    }
+    public function districtBodyTemplate(string $page, $data)
+    {
+        echo view('layouts/districtadmin_template', $data);
+        echo view('layouts/district/header', $data);
+        echo view($page, $data);
+        echo view('layouts/district/footer', $data);
+    }
+    public function schoolBodyTemplate(string $page, $data)
+    {
+        echo view('layouts/schooladmin_template', $data);
+        echo view('layouts/school/header', $data);
+        echo view($page, $data);
+        echo view('layouts/school/footer', $data);
     }
 }

@@ -4,13 +4,41 @@ namespace Config;
 use CodeIgniter\Router\RouteCollection;
 
 /**
+ * --------------------------------------------------------------------
+ * Router Setup
+ * --------------------------------------------------------------------
+ */
+$routes->setDefaultNamespace('App\Controllers');
+$routes->setDefaultController('School');
+$routes->setDefaultMethod('index');
+$routes->setTranslateURIDashes(false);
+$routes->set404Override();
+$routes->setAutoRoute(true);
+
+/**
  * @var RouteCollection $routes
  */
-$routes->get('/', 'Home::index');
+$routes->get('/', 'School::index');
+// $routes->get('/', 'Home::index');
 $routes->get('administrator', 'Home::index');
 $routes->post('adminlogin', 'Home::login');
+$routes->get('admin/logout', 'Home::logout');
+
+
+$routes->post('school/login', 'Home::sdLogin');
+
+$routes->get('district/dashboard', 'District::dashboard');
+$routes->get('district/manage_schools', 'District::manage_schools');
+
+
 
 $routes->get('admin/dashboard', 'Admin::index');
+$routes->get('admin/admin_setting', 'Admin::admin_setting');
+$routes->post('admin/admin_setting', 'Admin::admin_setting');
+$routes->get('admin/terms_of_use', 'Admin::terms_of_use');
+$routes->get('admin/privacy_policy', 'Admin::privacy_policy');
+$routes->get('admin/pages', 'Admin::pages');
+$routes->get('admin/addpage/(:num)', 'Admin::addpage/$1');
 
 $routes->get('admin/manage_district', 'Admin::manage_district');
 $routes->get('admin/adddistricts', 'Admin::adddistricts');
@@ -50,9 +78,6 @@ $routes->get('admin/deactivate_templates/(:num)', 'Admin::deactivate_templates/$
 $routes->get('admin/activate_templates/(:num)', 'Admin::activate_templates/$1');
 $routes->post('admin/take_a_copy_master_template', 'Admin::take_a_copy_master_template');
 $routes->get('admin/delete_templates/(:num)', 'Admin::delete_templates/$1');
-
-
-
 
 $routes->get('admin/manage_full_surveys', 'Admin::manage_full_surveys');
 $routes->get('admin/manage_full_submitted_surveys', 'Admin::manage_full_submitted_surveys');

@@ -38,7 +38,43 @@
 				<!-- block -->
 
 				<!--For Flash message-->
-				<?= $this->include('common/alerts'); ?>
+
+				<?php if ($this->session->flashdata('sucess_msg')) { ?>
+
+				<div class="alert alert-success">
+
+						 <a href="#" class="close" data-dismiss="alert">&times;</a>
+
+						  <?php
+
+								 echo $this->session->flashdata('sucess_msg');
+
+								 $this->session->unset_userdata('sucess_msg');
+
+						  ?>
+
+				</div>
+
+				<?php } ?>
+
+				<?php if ($this->session->flashdata('error_msg')) { ?>
+
+				<div class="alert alert-danger">
+
+						<a href="#" class="close" data-dismiss="alert">&times;</a>
+
+						 <?php
+
+								echo $this->session->flashdata('error_msg');
+
+								$this->session->unset_userdata('error_msg');
+
+						 ?>
+
+				</div>
+
+				<?php } ?>
+
 				<!--End Flash message-->
 
 					<div class="block-content collapse in">

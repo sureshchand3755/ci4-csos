@@ -11,8 +11,7 @@ class Admin extends BaseController
     }
     public function index()
     {
-        $data = $this->commonData(lang('admin_dashboard'));
-        
+        $data = $this->commonData(lang('Admin.admin_dashboard'));        
         $data['district_count']=$this->adminModel->getDistrictCount();
         $data['schools_count']=$this->adminModel->getSchoolsCount();
         $data['template_count']=$this->adminModel->getTemplateCount();
@@ -20,6 +19,89 @@ class Admin extends BaseController
         $data['report_count']=$this->adminModel->getReportCount();
         return $this->adminBodyTemplate('adminbody/dashboard', $data);
     }
+	public function admin_setting()
+	{
+		$data = $this->commonData();        
+		if($this->request->getVar('namesetting'))
+		{
+			$rules=[
+                'username'=> ['label' => 'Username', 'rules' => 'required'],
+                'adminemail'=> ['label' => 'Email', 'rules' => 'required'],
+            ];
+			
+            if ($this->validate($rules)) {
+			
+					$userid = $this->session->get('gowriteadmin_Userid');
+					$inputData['username']      = trim($this->request->getVar('username'));
+					$inputData['email']= trim($this->request->getVar('adminemail'));
+					if($_FILES['adminimage']['name']!='')
+					{
+						$name = $_FILES['adminimage']['name'];
+						$tmp_name = $_FILES['adminimage']['tmp_name'];
+						$upload_dir = UPLOAD_PROFILEPICS.'admin/';
+						$inputData['image'] = $name;
+						move_uploaded_file($tmp_name,$upload_dir.$name);
+					}
+					$result = $this->commonModel->Update_Values(ADMIN_DETAILS,$inputData,$userid);
+					session()->setFlashdata('notif_success', lang('Admin.admin_name_settings_updated'));
+					return $this->response->redirect(site_url('admin/admin_setting'));
+			}
+			else{
+				$data['selectval']=$this->request->getVar();
+			}
+		}
+		if($this->request->getVar('passwordsetting'))
+		{
+			$rules=[
+                'newpassword'=> ['label' => 'New Password', 'rules' => 'required'],
+                'confirmpassword'=> ['label' => 'Confirm Password', 'rules' => 'required'],
+            ];
+			if ($this->validate($rules))
+			{
+					$userid = $this->session->get('gowriteadmin_Userid');
+					$inputData['password']= password_hash(trim($this->request->getVar('newpassword')), PASSWORD_DEFAULT);
+					$result = $this->commonModel->Update_Values(ADMIN_DETAILS,$inputData,$userid);
+					session()->setFlashdata('notif_success', lang('Admin.admin_password_settings_updated'));
+					return $this->response->redirect(site_url('admin/admin_setting'));
+					
+			}
+			else{
+				$data['selectval']=$this->request->getVar();
+			}
+		}
+		if($this->request->getVar('sitesetting'))
+		{
+			$rules=[
+                'sitetitle'=> ['label' => 'Sitetitle', 'rules' => 'required'],
+                'youtube'=> ['label' => 'Youtube', 'rules' => 'required'],
+                'facebook'=> ['label' => 'Facebook', 'rules' => 'required'],
+                'twitter'=> ['label' => 'Twitter', 'rules' => 'required'],
+                'linkedin'=> ['label' => 'Linkedin', 'rules' => 'required'],
+                'googleplus'=> ['label' => 'Googleplus', 'rules' => 'required'],
+            ];
+			if ($this->validate($rules))
+			{
+				$userid = $this->session->get('gowriteadmin_Userid');
+				$inputData['sitetitle']= $this->request->getVar('sitetitle');
+				$inputData['youtube']= $this->request->getVar('youtube');
+				$inputData['facebook']= $this->request->getVar('facebook');
+				$inputData['twitter']= $this->request->getVar('twitter');
+				$inputData['linkedin']= $this->request->getVar('linkedin');
+				$inputData['googleplus']= $this->request->getVar('googleplus');
+				$result = $this->commonModel->Update_Values(ADMIN_DETAILS,$inputData,$userid);
+				session()->setFlashdata('notif_success', lang('Admin.admin_site_settings_updated'));
+				return $this->response->redirect(site_url('admin/admin_setting'));
+			}
+			else{
+				$data['selectval']=$this->request->getPost();
+			}
+		}
+		$data['validation'] = $this->validation;
+		$data['title'] = lang('Admin.admin_settings_title');
+		$data['admin_id']= session()->get('gowriteadmin_Userid');
+		$data['selectval'] = $this->commonModel->Select_Val_Id(ADMIN_DETAILS,$data['admin_id']);
+		$this->adminBodyTemplate('adminbody/admin_settings',$data);
+	}
     public function manage_district()
 	{
 		$data = $this->commonData('ADMIN');
@@ -100,7 +182,7 @@ class Admin extends BaseController
                 $input['fullname']          = trim($this->request->getVar('full_name'));
                 $input['username']          = trim($this->request->getVar('username'));
                 $input['email']			    = trim($this->request->getVar('email'));
-                $input['password']          = password_hash($this->request->getVar('password'), PASSWORD_DEFAULT);
+                $input['password']          = password_hash(trim($this->request->getVar('password')), PASSWORD_DEFAULT);
                 if($district_id==''){
                     $resultadmin = $this->commonModel->Insert_Values(DISTRICTADMIN_DETAILS,$input);							
                 }else{
@@ -193,7 +275,7 @@ class Admin extends BaseController
 					$input['principal_name']	= trim($this->request->getVar('principal_name'));
 					$input['username']      	= trim($this->request->getVar('username'));
 					$input['email']				= trim($this->request->getVar('email'));
-					$input['password'] 			= password_hash($this->request->getVar('password'), PASSWORD_DEFAULT);
+					$input['password'] 			= password_hash(trim($this->request->getVar('password')), PASSWORD_DEFAULT);
 					$input['landing_message']	= trim($this->request->getVar('landing_message'));
 					
 					if($school_id=='')
@@ -1035,7 +1117,7 @@ class Admin extends BaseController
 					   '</div>'.
 				'</div>'.
 				'<div id="footer" style="width: 80%;height: 40px;margin: 0 auto;text-align: center;padding: 10px;font-family: Verdena;background-color: #ffcd44; color:#fff;">'.
-					'All rights reserved @ csos - '.date(Y).''.
+					'All rights reserved @ csos - '.date('Y').''.
 				'</div>'.
 				'</body>';
 				$contactheaders  = "From: ".$adminemail."\r\n";
@@ -1131,6 +1213,7 @@ class Admin extends BaseController
 		$template_id = $this->request->getVar('template_id');
 		$school_id = 0;
 		$district_id = 0;
+		$sub_id=0;
 		$template_details = $this->commonModel->Select_Val_Id('master_templates',$template_id);
 		$forms = $this->db->table('template_forms')->select('*')->where('template_id',$template_id)->get()->getResultArray();
 		if(count($template_details))
@@ -2606,6 +2689,284 @@ class Admin extends BaseController
 		$data['master_templates'] = $this->db->table('reports')->select('*')->where('school_id',0)->where('district_id',0)->get()->getResultArray();
 		$this->adminBodyTemplate('adminbody/manage_school_reports',$data);
 	}
+	public function pages()
+	{
+		$data = $this->commonData();
+		$data['pages'] = $this->db->table('pages')->select('*')->get()->getResultArray();
+		$data['district']= $this->db->table('go_district_admin')->select('*')->where('status',0)->get()->getRowArray();
+		$this->adminBodyTemplate('adminbody/pages',$data);
+	}
+	public function addpage($page_id=null)
+	{
+		$data = $this->commonData();
+		if($this->request->getPost('register_page'))
+		{
+			$rules=[
+                'page_name'=> ['label' => 'Page Name', 'rules' => 'required'],
+            ];			
+            if ($this->validate($rules)){
+					$input['page_name']   = $this->request->getPost('page_name');
+					$input['content']     = $this->request->getPost('content');
+					
+					if($page_id=='')
+					{
+						$resultadmin = $this->commonModel->Insert_Values('pages',$input);							
+					}
+					else
+					{
+						$resultadmin = $this->commonModel->Update_Values('pages',$input,$page_id);
+					}
+					$this->session->set_flashdata('sucess_msg', 'Page Saved Successfully');
+					redirect(base_url('admin/pages'));
+			}
+			else{
+				$data['selectval']=$this->request->getPost();
+			}
+		}
+		if($page_id!='')
+		{
+		$data['title'] = 'Edit Page';
+		$data['selectval']=$this->commonModel->Select_Val_Id('pages',$page_id);
+		}
+		else
+		{
+		$data['title'] = 'Add Page';
+		$data['selectval']=$this->request->getPost();
+		}
+		$data['page_id']= $page_id;
+		$this->adminBodyTemplate('adminbody/addpage',$data);
+	}
+	public function terms_of_use()
+	{
+		$data = $this->commonData();
+		$data['page'] = $this->commonModel->Select_Val_Id('pages',1);
+		$this->adminBodyTemplate('adminbody/page',$data);
+	}
+	public function privacy_policy()
+	{
+		$data = $this->commonData();
+		$data['page'] = $this->commonModel->Select_Val_Id('pages',2);
+		$this->adminBodyTemplate('adminbody/page',$data);
+	}
+	
+	public function manage_report_template($id = '')
+	{
+		$data = $this->commonData();
+		if($id!='')
+		{
+		$data['title'] = 'Edit Report Template';
+		$data['selectval']=$this->commonModel->Select_Val_Id('reports',$id);
+		}
+		else
+		{
+		$data['title'] = 'Add Report Template';
+		$data['selectval']=$this->request->getPost();
+		}
+		$data['template_id']= $id;
+		$this->adminBodyTemplate('adminbody/addreport',$data);
+	}
+	public function view_report_template($id = '')
+	{
+		$data = $this->commonData();
+		if($id!='')
+		{
+		$data['title'] = 'View Report Template';
+		$data['selectval']=$this->commonModel->Select_Val_Id('reports',$id);
+		}
+		else
+		{
+		$data['title'] = 'Add Report Template';
+		$data['selectval']=$this->request->getPost();
+		}
+		$data['template_id']= $id;
+		$this->adminBodyTemplate('adminbody/viewreport',$data);
+	}
+	public function view_report_template_submitted($id = '')
+	{
+		$data = $this->commonData();
+		if($id!='')
+		{
+		$data['title'] = 'View Report Template';
+		$data['selectval']=$this->commonModel->Select_Val_Id('reports',$id);
+		}
+		else
+		{
+		$data['title'] = 'Add Report Template';
+		$data['selectval']=$this->request->getPost();
+		}
+		$data['template_id']= $id;
+		$this->adminBodyTemplate('adminbody/viewreport_submitted',$data);
+	}
+	public function manage_lcap_template($id = '')
+	{
+		$data = $this->commonData();
+		if($id!='')
+		{
+		$data['title'] = 'Edit Report Template';
+		$data['selectval']=$this->commonModel->Select_Val_Id('reports',$id);
+		}
+		else
+		{
+		$data['title'] = 'Add Report Template';
+		$data['selectval']=$this->request->getPost();
+		}
+		$data['template_id']= $id;
+		$this->adminBodyTemplate('adminbody/addlcapreport',$data);
+	}
+	public function view_lcap_template($id = '')
+	{
+		$data = $this->commonData();
+		if($id!='')
+		{
+		$data['title'] = 'View Report Template';
+		$data['selectval']=$this->commonModel->Select_Val_Id('reports',$id);
+		}
+		else
+		{
+		$data['title'] = 'Add Report Template';
+		$data['selectval']=$this->request->getPost();
+		}
+		$data['template_id']= $id;
+		$this->adminBodyTemplate('adminbody/viewlcapreport',$data);
+	}
+	public function view_lcap_template_submitted($id = '')
+	{
+		$data = $this->commonData();
+		if($id!='')
+		{
+		$data['title'] = 'View Report Template';
+		$data['selectval']=$this->commonModel->Select_Val_Id('reports',$id);
+		}
+		else
+		{
+		$data['title'] = 'Add Report Template';
+		$data['selectval']=$this->request->getPost();
+		}
+		$data['template_id']= $id;
+		$this->adminBodyTemplate('adminbody/viewlcapreport_submitted',$data);
+	}
+	public function manage_report_template_step2($id = '')
+	{
+		$data = $this->commonData();
+		if($id!='')
+		{
+		$data['title'] = 'Edit Report Template';
+		$data['selectval']=$this->commonModel->Select_Val_Id('reports',$id);
+		}
+		else
+		{
+		$data['title'] = 'Add Report Template';
+		$data['selectval']=$this->request->getPost();
+		}
+		$data['template_id']= $id;
+		$this->adminBodyTemplate('adminbody/addreport_page2',$data);
+	}
+	public function view_report_template_step2($id = '')
+	{
+		$data = $this->commonData();
+		if($id!='')
+		{
+		$data['title'] = 'View Report Template';
+		$data['selectval']=$this->commonModel->Select_Val_Id('reports',$id);
+		}
+		else
+		{
+		$data['title'] = 'Add Report Template';
+		$data['selectval']=$this->request->getPost();
+		}
+		$data['template_id']= $id;
+		$this->adminBodyTemplate('adminbody/viewreport_page2',$data);
+	}
+	public function view_report_template_step2_submitted($id = '')
+	{
+		$data = $this->commonData();
+		if($id!='')
+		{
+		$data['title'] = 'View Report Template';
+		$data['selectval']=$this->commonModel->Select_Val_Id('reports',$id);
+		}
+		else
+		{
+		$data['title'] = 'Add Report Template';
+		$data['selectval']=$this->request->getPost();
+		}
+		$data['template_id']= $id;
+		$this->adminBodyTemplate('adminbody/viewreport_page2_submitted',$data);
+	}
+	public function get_report_table_tr()
+	{
+		$data = $this->commonData();
+		$data['template_id'] = $this->request->getPost('template_id');
+		$data['content1'] = '';
+		$data['content2'] = '';
+		$data['yes_content'] = 'Yes';
+		$data['no_content'] = 'No';
+		$data['type'] = 0;
+		$lastinsertId = $this->commonModel->Insert_Values('report_forms',$data);
+		$ids = $lastinsertId;
+		$output = '<tr class="content_tr" data-element="'.$ids.'">
+            <td style="border:1px solid #dfdfdf">
+                <input type="text" name="content1[]" class="form-control content1" value="">
+                <p style="text-align: center;margin-top:10px;font-size:18px">Comply</p>
+                <input type="text" name="yes_content[]" class="form-control yes_content" value="Yes" style="width:45%;float:left">
+                <input type="text" name="no_content[]" class="form-control no_content" value="No" style="width:45%;margin-left:10px;float:left">
+            </td>
+            <td style="border:1px solid #dfdfdf"><textarea name="content2[]" class="form-control content2" style="height:150px"></textarea></td>
+            <td style="border:1px solid #dfdfdf;vertical-align: bottom;">
+                <a href="javascript:" class="fa fa-minus remove_content" data-element="'.$ids.'"></a>
+                <a href="javascript:" class="fa fa-plus add_content"></a>
+            </td>
+        </tr>';
+        echo $output;
+	}
+	public function get_report_table_tr_step2()
+	{
+		$data = $this->commonData();
+		$data['template_id'] = $this->request->getPost('template_id');
+		$data['content1'] = '';
+		$data['content2'] = '';
+		$data['type'] = 1;
+		$lastinsertId = $this->commonModel->Insert_Values('report_forms',$data);
+		$ids = $lastinsertId;
+		$output = '<tr class="content_tr" data-element="'.$ids.'">
+            <td style="border:1px solid #dfdfdf">
+                <textarea name="content1[]" class="form-control content1" style="height:150px"></textarea>
+            </td>
+            <td style="border:1px solid #dfdfdf">
+            	<textarea name="content2[]" class="form-control content2" style="height:150px"></textarea>
+            </td>
+            <td style="border:1px solid #dfdfdf;vertical-align: bottom;">
+            	<label class="switch">
+                    <input type="checkbox" class="attach_class" value="1">
+                    <span class="slider round"></span>
+                </label>
+                <input type="hidden" name="attachment[]" class="attach_hidden" value="0">
+                <a href="javascript:" class="fa fa-minus remove_content" data-element="'.$ids.'"></a>
+                <a href="javascript:" class="fa fa-plus add_content"></a>
+            </td>
+        </tr>';
+        echo $output;
+	}
+	public function remove_report_forms()
+	{
+		$template_id = $this->request->getPost('template_id');
+		$report_id = $this->request->getPost('report_id');
+		$this->commonModel->Delete_Related_Values('report_forms','id',$report_id);
+	}
+	public function save_template_name_report()
+	{
+		$template_id = $this->request->getPost('template_id');
+		$type = $this->request->getPost('type');
+		$inputData[$type] = $this->request->getPost('content');
+		$this->commonModel->Update_Values('reports',$inputData,$template_id);
+	}
+	public function save_reportform_content()
+	{
+		$form_id = $this->request->getPost('form_id');
+		$type = $this->request->getPost('type');
+		$inputData[$type] = $this->request->getPost('content');
+		$this->commonModel->Update_Values('report_forms',$inputData,$form_id);
+	}
 	public function manage_district_reports()
 	{
 		$data = $this->commonData();
@@ -2886,7 +3247,7 @@ class Admin extends BaseController
 		{
 			$id = $_GET['notify'];
 			$dataval['status'] = 0;
-			$this->commonModule->Update_Values('notifications',$dataval,$id);
+			$this->commonModel->Update_Values('notifications',$dataval,$id);
 		}
 		$type = $this->request->getVar('type');
 		$data['title']= 'ADMIN';
@@ -2913,6 +3274,7 @@ class Admin extends BaseController
 		else{
 			$district_id = 0;
 		}
+		$sub_id=0;
 		$template_details = $this->commonModel->Select_Val_Id('master_templates',$template_id);
 		$forms = $this->db->table('template_forms')->select('*')->where('template_id',$template_id)->get()->getResultArray();
 		if(count($template_details))

@@ -93,7 +93,7 @@ class AdminModel extends Model
         ->where('virtual_district !=',1);
         if(!empty($first_name))
         {
-            $query = $query->or_like('fullname',$first_name);
+            $query = $query->orLike('fullname',$first_name);
         }
         $query = $query->orderBy('id','desc')->get();
         return $query->getResultArray();
@@ -115,27 +115,9 @@ class AdminModel extends Model
         ->where('status',0)
         ->where('virtual_district !=',1);
         if(!empty($first_name)){
-            $query = $query->or_like('fullname',$first_name);
+            $query = $query->orLike('fullname',$first_name);
         }
         $query = $query->orderBy('district_name','desc')->get();
         return $query->getResultArray();
     }
-
-	public function ValidateLogin($input)
-        {
-            $row=array();
-            $result=$this->db->select('*')
-                    ->where('username',$input['username'])
-                    ->where('deletetime =','')
-                    ->get(ADMIN_DETAILS);
-            if($result->num_rows()>0){
-                    $row=$result->row_array();
-                    $pwd= $this->encrypt->decode($row['password']);
-                    if($pwd===$input['password'])
-                    return $row;
-            }else{
-                     return $row;
-            }
-
-        }
 }
