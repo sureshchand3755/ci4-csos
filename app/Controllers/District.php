@@ -1899,7 +1899,7 @@ class District extends BaseController
 		$data['no_content'] = 'No';
 		$data['type'] = 0;
 		$result = $this->commonModel->Insert_Values('report_forms',$data);
-		$ids = mysql_insert_id();
+		$ids = $result;
 		$output = '<tr class="content_tr" data-element="'.$ids.'">
             <td style="border:1px solid #dfdfdf">
                 <input type="text" name="content1[]" class="form-control content1" value="">
@@ -1922,7 +1922,7 @@ class District extends BaseController
 		$data['content2'] = '';
 		$data['type'] = 1;
 		$result = $this->commonModel->Insert_Values('report_forms',$data);
-		$ids = mysql_insert_id();
+		$ids = $result;
 		$output = '<tr class="content_tr" data-element="'.$ids.'">
             <td style="border:1px solid #dfdfdf">
                 <textarea name="content1[]" class="form-control content1" style="height:150px"></textarea>
