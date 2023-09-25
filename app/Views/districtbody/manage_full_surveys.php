@@ -1,3 +1,6 @@
+<?php 
+$this->db = \Config\Database::connect();
+?>
 <section class="page-content">
     <div class="page-content-inner">
     	<style>
@@ -30,43 +33,7 @@
 				<!-- block -->
 
 				<!--For Flash message-->
-
-				<?php if ($this->session->flashdata('sucess_msg')) { ?>
-
-				<div class="alert alert-success">
-
-						 <a href="#" class="close" data-dismiss="alert">&times;</a>
-
-						  <?php
-
-								 echo $this->session->flashdata('sucess_msg');
-
-								 $this->session->unset_userdata('sucess_msg');
-
-						  ?>
-
-				</div>
-
-				<?php } ?>
-
-				<?php if ($this->session->flashdata('error_msg')) { ?>
-
-				<div class="alert alert-danger">
-
-						<a href="#" class="close" data-dismiss="alert">&times;</a>
-
-						 <?php
-
-								echo $this->session->flashdata('error_msg');
-
-								$this->session->unset_userdata('error_msg');
-
-						 ?>
-
-				</div>
-
-				<?php } ?>
-
+				<?= $this->include('common/alerts'); ?>
 				<!--End Flash message-->
 
 					<div class="block-content collapse in">
@@ -102,7 +69,7 @@
 										$i = 1;
 										foreach($select_templates as $template)
 										{
-											$school_details = $this->Madmin->Select_Val_id('go_schools',$template['school_id']);
+											$school_details = $this->db->table('go_schools')->select('*')->where('id', $template['school_id'])->get()->getRowArray();
 
 											$href=BASE_URL.'admin/delete_survey/'.$template['id'];
 											?>
@@ -134,25 +101,25 @@
 													<?php 
 													if($template['status'] == 0){
 														?>
-														<a href='<?php echo BASE_URL."admin/addtemplate/".$template['id'].'?school_id='.$template['school_id']; ?>' class="fa fa-pencil" title="Edit Master Template" style="font-size:23px"></a>
+														<a href='<?php echo BASE_URL."district/addtemplate/".$template['id'].'?school_id='.$template['school_id']; ?>' class="fa fa-pencil" title="Edit Master Template" style="font-size:23px"></a>
 														
 														<?php
 													}
 													elseif($template['status'] == 1){
 														?>
-														<a href='<?php echo BASE_URL."admin/addtemplate/".$template['id'].'?school_id='.$template['school_id']; ?>' class="fa fa-pencil" title="Edit Master Template" style="font-size:23px"></a>
+														<a href='<?php echo BASE_URL."district/addtemplate/".$template['id'].'?school_id='.$template['school_id']; ?>' class="fa fa-pencil" title="Edit Master Template" style="font-size:23px"></a>
 														
 														<?php
 													}
 													elseif($template['status'] == 2){
 														?>
-														<a href='<?php echo BASE_URL."admin/addtemplate/".$template['id'].'?school_id='.$template['school_id']; ?>' class="fa fa-eye" title="Edit Master Template" style="font-size:23px"></a>
+														<a href='<?php echo BASE_URL."district/addtemplate/".$template['id'].'?school_id='.$template['school_id']; ?>' class="fa fa-eye" title="Edit Master Template" style="font-size:23px"></a>
 														
 														<?php
 													}
 													else{
 														?>
-														<a href='<?php echo BASE_URL."admin/addtemplate/".$template['id'].'?school_id='.$template['school_id']; ?>' class="fa fa-eye" title="Edit Master Template" style="font-size:23px"></a>
+														<a href='<?php echo BASE_URL."district/addtemplate/".$template['id'].'?school_id='.$template['school_id']; ?>' class="fa fa-eye" title="Edit Master Template" style="font-size:23px"></a>
 														
 														<?php
 													}
@@ -219,7 +186,7 @@ $(window).click(function(e) {
 	if($(e.target).hasClass('take_a_copy'))
 	{
 		var template_id = $(".choose_template").val();
-		var school_id = "<?php echo $_GET['school_id']; ?>";
+		var school_id = "<?php echo isset($_GET['school_id'])?$_GET['school_id']:''; ?>";
 		if(template_id == "")
 		{
 			alert("Please Select the Template and then take a copy of it.")

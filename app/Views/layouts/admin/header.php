@@ -1,3 +1,6 @@
+<?php 
+$this->db = \Config\Database::connect();
+?>
 <nav class="top-menu">
     <div class="menu-icon-container">
         <a href="<?php echo BASE_URL.'admin/dashboard'; ?>" class="logo">
@@ -21,7 +24,7 @@
                     <span class="avatar" href="javascript:void(0);">
                         <?php $admin = $users;
 
-                            if($admin['image']=='') {
+                            if(isset($admin['image'])=='') {
 
                             ?>
 
@@ -182,7 +185,7 @@
                                 {
                                     foreach($notifications as $notify)
                                     {
-                                        $report_details = $this->db->select('*')->from('principal_attachments')->where('id',$notify['report_id'])->get()->row_array();
+                                        $report_details = $this->db->table('principal_attachments')->select('*')->where('id',$notify['report_id'])->get()->getRowArray();
                                         ?>
                                         <li class="li_notify">
                                             <a href="<?php echo BASE_URL.'admin/principal_apportionment?type='.$report_details['type'].'&notify='.$notify['id']; ?>">
@@ -190,7 +193,7 @@
                                                     <strong><?php echo $notify['message']; ?></strong>
                                                 </div>
                                                 <div style="width:100%">
-                                                    <?php $school_details = $this->db->select('*')->from('go_schools')->where('id',$report_details['school_id'])->get()->row_array(); 
+                                                    <?php $school_details = $this->db->table('go_schools')->select('*')->where('id',$report_details['school_id'])->get()->getRowArray(); 
                                                     if(!empty($school_details))
                                                     {
                                                         $schoolname = $school_details['school_name'];

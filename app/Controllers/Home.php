@@ -82,11 +82,11 @@ class Home extends BaseController
 						// setcookie('ad_username',$this->input->post('username'),$year);
 						// setcookie('ad_password',$this->encrypt->encode($this->input->post('password')),$year);
 						// }
-						redirect(base_url()."school/dashboard");
+						return $this->response->redirect(site_url("school/dashboard"));
 					}
 					else{
 						session()->setFlashdata('notif_error', 'invalid Username and Password');
-						redirect(base_url()."school/login");
+						return $this->response->redirect(site_url("school/login"));
 					}
                 }else{
                     $result = $this->districtModel->DistrictValidateLogin($inputData);
@@ -104,11 +104,11 @@ class Home extends BaseController
                         //     setcookie('ad_username',$this->input->post('username'),$year);
                         //     setcookie('ad_password',$this->encrypt->encode($this->input->post('password')),$year);
 						// }
-						return redirect(base_url()."district/dashboard");
+						return $this->response->redirect(site_url("district/dashboard"));
 					}
 					else{
 						session()->setFlashdata('notif_error', 'invalid Username and Password');
-						return redirect(base_url()."school/login");
+						return $this->response->redirect(site_url("school/login"));
 					}
                 }              
             }

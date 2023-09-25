@@ -8,18 +8,18 @@
         	<section class="content">
         	    <!-- Small boxes (Stat box) -->
                      <!-- BEGIN FORM-->
-                    <form action="<?php echo BASE_URL.'admin/save_template_content_step2'; ?>" id="form_sample_3" method="post" enctype="multipart/form-data">
+                    <form action="<?php echo BASE_URL.'district/save_template_content_step2'; ?>" id="form_sample_3" method="post" enctype="multipart/form-data">
                         <div class="margin-bottom-50">
                             <div class="nav-tabs-horizontal">
                                 <ul class="nav nav-tabs" role="tablist">
                                     <li class="nav-item">
-                                        <a class="nav-link" href="<?php echo BASE_URL.'admin/addtemplate/'.$template_id; ?>">Step 1</a>
+                                        <a class="nav-link" href="<?php echo BASE_URL.'district/addtemplate/'.$template_id; ?>">Step 1</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link active" href="javascript:">Step 2</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link" href="<?php echo BASE_URL.'admin/addtemplate_step3/'.$template_id; ?>">Step 3</a>
+                                        <a class="nav-link" href="<?php echo BASE_URL.'district/addtemplate_step3/'.$template_id; ?>">Step 3</a>
                                     </li>
                                 </ul>
                                 <?php
@@ -182,7 +182,7 @@ function ajax_response(e){
     var hidden_template_id = $("#hidden_template_id").val();
 
     $.ajax({
-        url:"<?php echo BASE_URL.'admin/ajax_create_master_template_step2'; ?>",
+        url:"<?php echo BASE_URL.'district/ajax_create_master_template_step2'; ?>",
         type:"post",
         data:{formdatas:$("#form_sample_3").serialize(),template_id:hidden_template_id},
         success: function(result)

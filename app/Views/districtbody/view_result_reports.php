@@ -1,3 +1,6 @@
+<?php 
+$this->session= \Config\Services::session();
+?>
 <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <style>
@@ -70,8 +73,8 @@ display: block;
                 <label style="font-weight:600">Select School:</label>
                 <div class="select_school_div">
                     <?php
-                    $district_id = $this->session->userdata('gowritedistrictadmin_Userid');
-                    $schools = $this->db->select('*')->from('go_schools')->where('district_id',$district_id)->get()->result_array();
+                    $district_id = $this->session->get('gowritedistrictadmin_Userid');
+                    $schools = $this->db->table('go_schools')->select('*')->where('district_id',$district_id)->get()->getResultArray();
                     $output = '';
                     if(!empty($schools))
                     {
@@ -146,8 +149,8 @@ display: block;
             <input type="checkbox" name="select_all_schools" class="select_all_schools" id="select_all_schools"><label for="select_all_schools" class="select_all_schools_cls" style="display:none">&nbsp;&nbsp;Select All</label>
             <div class="select_school_div_due" style="margin-top:10px">
                 <?php
-                $district_id = $this->session->userdata('gowritedistrictadmin_Userid');
-                $schools = $this->db->select('*')->from('go_schools')->where('district_id',$district_id)->get()->result_array();
+                $district_id = $this->session->get('gowritedistrictadmin_Userid');
+                $schools = $this->db->table('go_schools')->select('*')->where('district_id',$district_id)->get()->getResultArray();
                 $output = '';
                 if(!empty($schools))
                 {
@@ -262,8 +265,8 @@ display: block;
                     <label style="font-weight:600">Filter By School:</label>
                     <select name="filter_school" class="form-control filter_school">
                         <?php
-                        $district_id = $this->session->userdata('gowritedistrictadmin_Userid');
-                        $schools = $this->db->select('*')->from('go_schools')->where('district_id',$district_id)->get()->result_array();
+                        $district_id = $this->session->get('gowritedistrictadmin_Userid');
+                        $schools = $this->db->table('go_schools')->select('*')->where('district_id',$district_id)->get()->getResultArray();
                         $output = '';
                         if(!empty($schools))
                         {
@@ -712,7 +715,7 @@ display: block;
         if($(e.target).hasClass('take_a_copy'))
         {
             var template_id = $(".choose_template").val();
-            var school_id = "<?php echo $_GET['school_id']; ?>";
+            var school_id = "<?php echo isset($_GET['school_id'])?$_GET['school_id']:0; ?>";
             if(template_id == "")
             {
                 alert("Please Select the Template and then take a copy of it.")

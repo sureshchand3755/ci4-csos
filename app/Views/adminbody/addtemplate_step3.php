@@ -168,8 +168,9 @@ input:checked + .slider:before {
                                     	<?php
                                     	if($templates['school_id'] != '0')
                                     	{
-                                    		$school_details = $this->Madmin->Select_Val_Id('go_schools',$templates['school_id']);
-											                  $district_details = $this->Madmin->Select_Val_Id('go_district_admin',$school_details['district_id']);
+                                    		$school_details = $this->db->table('go_schools')->select('*')->where('id', $templates['school_id'])->get()->getRowArray();
+
+											$district_details = $this->db->table('go_schools')->select('*')->where('id', $school_details['district_id'])->get()->getRowArray();
                                     	}
                                     	
                                     	if($templates['status'] > 1) { $disabled = 'readonly'; }

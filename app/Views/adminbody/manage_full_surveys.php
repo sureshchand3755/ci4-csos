@@ -137,7 +137,7 @@ $this->db = \Config\Database::connect();
 
 										foreach($select_templates as $template)
 										{
-                                            $school_details = $this->db->table('go_schools')->select('*')->where('id', $template['school_id']);
+                                            $school_details = $this->db->table('go_schools')->select('*')->where('id', $template['school_id'])->get()->getRowArray();
 											
 											$href=BASE_URL.'admin/delete_survey/'.$template['id'];
                                             $district_id = isset($_GET['district_id'])?$_GET['district_id']:0;

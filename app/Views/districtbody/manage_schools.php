@@ -39,7 +39,7 @@
 				<!-- block -->
 
 				<!--For Flash message-->
-
+				<?= $this->include('common/alerts'); ?>
 				<!--End Flash message-->
 
 					<div class="block-content collapse in">

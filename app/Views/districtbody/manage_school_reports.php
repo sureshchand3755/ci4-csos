@@ -355,81 +355,7 @@
 
 
 				<!--For Flash message-->
-
-
-
-				<?php if ($this->session->flashdata('sucess_msg')) { ?>
-
-
-
-				<div class="alert alert-success">
-
-
-
-						 <a href="#" class="close" data-dismiss="alert">&times;</a>
-
-
-
-						  <?php
-
-
-
-								 echo $this->session->flashdata('sucess_msg');
-
-
-
-								 $this->session->unset_userdata('sucess_msg');
-
-
-
-						  ?>
-
-
-
-				</div>
-
-
-
-				<?php } ?>
-
-
-
-				<?php if ($this->session->flashdata('error_msg')) { ?>
-
-
-
-				<div class="alert alert-danger">
-
-
-
-						<a href="#" class="close" data-dismiss="alert">&times;</a>
-
-
-
-						 <?php
-
-
-
-								echo $this->session->flashdata('error_msg');
-
-
-
-								$this->session->unset_userdata('error_msg');
-
-
-
-						 ?>
-
-
-
-				</div>
-
-
-
-				<?php } ?>
-
-
-
+				<?= $this->include('common/alerts'); ?>
 				<!--End Flash message-->
 
 
@@ -497,8 +423,6 @@
 										foreach($select_attachments as $attachment)
 
 										{
-
-											$school_details = $this->Madmin->Select_Val_Id('go_schools',$template['school_id']);
 
 											$explodefile = explode("||",$attachment['filename']);
 

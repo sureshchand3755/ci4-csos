@@ -43,8 +43,6 @@ display: block;
 										<label style="font-weight:600">Select School:</label>
 										<select name="select_school" class="form-control select_school">
 											<?php
-					                        $district_id = $this->session->userdata('gowritedistrictadmin_Userid');
-					                        $schools = $this->db->select('*')->from('go_schools')->where('district_id',$district_id)->get()->result_array();
 					                        $output = '';
 					                        if(!empty($schools))
 					                        {

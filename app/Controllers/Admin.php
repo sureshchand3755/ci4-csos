@@ -259,6 +259,27 @@ class Admin extends BaseController
 		return $this->response->redirect(site_url('admin/manage_district'));
 	}
 
+	public function delete_school($id = '')
+	{
+		$school = $this->commonModel->Select_Val_Id('go_schools',$id);
+		if(!empty($school))
+		{
+			$district_id = $school['district_id'];
+			$get_templates = $this->db->table('master_templates')->select('*')->where('school_id',$school['id'])->get()->getResultArray();
+			if(!empty($get_templates))
+			{
+				foreach($get_templates as $template)
+				{
+					$this->commonModel->Delete_Values('master_templates',$template['id']);
+					$this->commonModel->Delete_Related_Values('template_forms','template_id',$template['id']);
+				}
+			}
+			$this->commonModel->Delete_Values('go_schools',$id);
+			session()->setFlashdata('notif_success', 'School Deleted Successfully');
+			return $this->response->redirect(site_url('admin/manage_schools?district_id='.$district_id));
+		}
+	}
+
 	public function addschool($school_id=null)
 	{
 		$data = $this->commonData();
@@ -1175,6 +1196,93 @@ class Admin extends BaseController
 			}
 		}
 		
+	}
+	public function ajax_create_master_template_step2()
+	{
+		parse_str($_POST['formdatas'], $searcharray);
+		$template_id = $searcharray['hidden_template_id'];
+		$data['addendum_title'] = $searcharray['addendum_title'];
+		$data['school_information'] = $searcharray['school_information'];
+		$data['school_name_title'] = $searcharray['school_name_title'];
+		$data['school_name'] = $searcharray['school_name'];
+		$data['location_title'] = $searcharray['location_title'];
+		$data['location'] = $searcharray['location'];
+		$data['contact_title'] = $searcharray['contact_title'];
+		$data['contact_name'] = $searcharray['contact_name'];
+		$data['home_address_title'] = $searcharray['home_address_title'];
+		$data['home_address'] = $searcharray['home_address'];
+		$data['email_title'] = $searcharray['email_title'];
+		$data['email_address'] = $searcharray['email_address'];
+		$data['phone_title'] = $searcharray['phone_title'];
+		$data['phone'] = $searcharray['phone'];
+		$data['school_phone_title'] = $searcharray['school_phone_title'];
+		$data['school_phone'] = $searcharray['school_phone'];
+		$data['fax_title'] = $searcharray['fax_title'];
+		$data['fax'] = $searcharray['fax'];
+		$serialize = serialize($data);
+		$dataval['addendum'] = $serialize;
+		$dataval['active_page'] = 2;
+		$this->commonModel->Update_Values('master_templates',$dataval,$template_id);
+	}
+	public function ajax_create_master_template_step3()
+	{
+		parse_str($_POST['formdatas'], $searcharray);
+		$template_id = $searcharray['hidden_template_id'];
+		$check_title = $searcharray['check_title'];
+		$section = $searcharray['section'];
+		$strong = $searcharray['strong'];
+		$sufficient = $searcharray['sufficient'];
+		$insufficient = $searcharray['insufficient'];
+		$na = $searcharray['na'];
+		$legend = $searcharray['editor_1'];
+		$this->commonModel->Delete_Related_Values('template_forms','template_id',$template_id);
+		if(count($check_title))
+		{
+			$sub_id = 0;
+			$key_summary = 0;
+			foreach($check_title as $key => $check)
+			{
+				if($check == 2)
+				{
+					$datatemplate['template_id'] = $template_id;
+					$datatemplate['sub_id'] = 0;
+					$datatemplate['section'] = $section[$key];
+					$datatemplate['strong'] = $strong[$key];
+					$datatemplate['sufficient'] = $sufficient[$key];
+					$datatemplate['insufficient'] = $insufficient[$key];
+					$datatemplate['na'] = $na[$key];
+					$datatemplate['set_title'] = 2;
+					$lastinsertId = $this->commonModel->Insert_Values('template_forms',$datatemplate);
+					$sub_id = $lastinsertId;
+					$key_summary++;
+				}
+				elseif($check == 1){
+					$datatemplate['template_id'] = $template_id;
+					$datatemplate['sub_id'] = $sub_id;
+					$datatemplate['section'] = $section[$key];
+					$datatemplate['strong'] = $strong[$key];
+					$datatemplate['sufficient'] = $sufficient[$key];
+					$datatemplate['insufficient'] = $insufficient[$key];
+					$datatemplate['na'] = $na[$key];
+					$datatemplate['set_title'] = 1;
+					$this->commonModel->Insert_Values('template_forms',$datatemplate);
+				}
+				else{
+					$datatemplate['template_id'] = $template_id;
+					$datatemplate['sub_id'] = $sub_id;
+					$datatemplate['section'] = $section[$key];
+					$datatemplate['strong'] = $strong[$key];
+					$datatemplate['sufficient'] = $sufficient[$key];
+					$datatemplate['insufficient'] = $insufficient[$key];
+					$datatemplate['na'] = $na[$key];
+					$datatemplate['set_title'] = 0;
+					$this->commonModel->Insert_Values('template_forms',$datatemplate);
+				}
+			}
+		}
+		$dataval['active_page'] = 3;
+		$dataval['legend'] = $legend;
+		$this->commonModel->Update_Values('master_templates',$dataval,$template_id);
 	}
 
 	public function activate_templates($id = '')

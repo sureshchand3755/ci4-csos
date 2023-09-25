@@ -23,7 +23,7 @@ $this->session = \Config\Services::session();
             <div class="dropdown dropdown-avatar">
                 <a href="javascript: void(0);" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                     <span class="avatar" href="javascript:void(0);">
-                        <?php $admin = $district_user;
+                        <?php $admin = $users;
 
                             if($admin['image']=='') {
 

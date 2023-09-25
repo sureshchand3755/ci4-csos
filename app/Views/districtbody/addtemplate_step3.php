@@ -1,4 +1,6 @@
-
+<?php 
+$this->db = \Config\Database::connect();
+?>
 <section class="page-content">
     <div class="page-content-inner">
 	<section class="panel">
@@ -147,15 +149,15 @@ input:checked + .slider:before {
         	<section class="content">
         	    <!-- Small boxes (Stat box) -->
                      <!-- BEGIN FORM-->
-                    <form action="<?php echo BASE_URL.'admin/save_template_content_step3'; ?>" id="form_sample_3" method="post" enctype="multipart/form-data">
+                    <form action="<?php echo BASE_URL.'district/save_template_content_step3'; ?>" id="form_sample_3" method="post" enctype="multipart/form-data">
                         <div class="margin-bottom-50">
                             <div class="nav-tabs-horizontal">
                                 <ul class="nav nav-tabs" role="tablist">
                                     <li class="nav-item">
-                                        <a class="nav-link" href="<?php echo BASE_URL.'admin/addtemplate/'.$template_id; ?>">Step 1</a>
+                                        <a class="nav-link" href="<?php echo BASE_URL.'district/addtemplate/'.$template_id; ?>">Step 1</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link" href="<?php echo BASE_URL.'admin/addtemplate_step2/'.$template_id; ?>">Step 2</a>
+                                        <a class="nav-link" href="<?php echo BASE_URL.'district/addtemplate_step2/'.$template_id; ?>">Step 2</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link link_active active" href="javascript:">Step 3</a>
@@ -166,8 +168,11 @@ input:checked + .slider:before {
                                     	<?php
                                     	if($templates['school_id'] != '0')
                                     	{
-                                    		$school_details = $this->Madmin->Select_Val_Id('go_schools',$templates['school_id']);
-											                  $district_details = $this->Madmin->Select_Val_Id('go_district_admin',$school_details['district_id']);
+                                    		$school_details = $this->db->table('go_schools')->select('*')->where('id', $templates['school_id'])->get()->getRowArray();
+
+											$district_details = $this->db->table('go_schools')->select('*')->where('id', $school_details['district_id'])->get()->getRowArray();
+
+											
                                     	}
                                     	
                                     	if($templates['status'] > 1) { $disabled = 'readonly'; }
@@ -242,7 +247,7 @@ input:checked + .slider:before {
 					                                        	<a href="javascript:" class="fa fa-plus add_title" title="Add New Question" style="font-size:20px;color:green;padding: 5px;border: 1px solid #dfdfdf;background: #dfdfdf;margin-top: 4px;margin-left: 4px;" '.$disabled.'></a>
 					                                        </div>
 					                                    </div>';
-					                                $get_sub_inputs = $this->db->select('*')->from('template_forms')->where('sub_id',$form['id'])->where('template_id',$form['template_id'])->get()->result_array();
+					                                $get_sub_inputs = $this->db->table('template_forms')->select('*')->where('sub_id',$form['id'])->where('template_id',$form['template_id'])->get()->getResultArray();
 					                                if(!empty($get_sub_inputs))
 					                                {
 					                                	foreach($get_sub_inputs as $input)
@@ -523,7 +528,7 @@ CKEDITOR.on('instanceCreated', function (e) {
 // 	    e.returnValue = ''; 
 // 	    var hidden_template_id = $("#hidden_template_id").val();
 // 	    $.ajax({
-// 	        url:"<?php echo BASE_URL.'admin/ajax_create_master_template_step3'; ?>",
+// 	        url:"<?php echo BASE_URL.'district/ajax_create_master_template_step3'; ?>",
 // 	        type:"post",
 // 	        data:{formdatas:$("#form_sample_3").serialize(),template_id:hidden_template_id},
 // 	        success: function(result)
@@ -659,7 +664,7 @@ $(window).click(function(e) {
 		//     e.returnValue = ''; 
 		//     var hidden_template_id = $("#hidden_template_id").val();
 		//     $.ajax({
-		//         url:"<?php echo BASE_URL.'admin/ajax_create_master_template_step3'; ?>",
+		//         url:"<?php echo BASE_URL.'district/ajax_create_master_template_step3'; ?>",
 		//         type:"post",
 		//         data:{formdatas:$("#form_sample_3").serialize(),template_id:hidden_template_id},
 		//         success: function(result)
@@ -703,7 +708,7 @@ $(window).click(function(e) {
     		<?php 
     		if($templates['school_id'] != '0')
             {
-	    		if($district_details['allow_discreation'] == 1)
+	    		if(isset($district_details['allow_discreation']) == 1)
 	    		{
 	    			?>
 	    			$("#form_sample_3").submit();

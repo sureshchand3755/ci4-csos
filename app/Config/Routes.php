@@ -29,6 +29,15 @@ $routes->post('school/login', 'Home::sdLogin');
 
 $routes->get('district/dashboard', 'District::dashboard');
 $routes->get('district/manage_schools', 'District::manage_schools');
+$routes->get('district/addschool', 'District::addschool');
+$routes->post('district/addschool', 'District::addschool');
+$routes->get('district/addschool/(:num)', 'District::addschool/$1');
+$routes->post('district/addschool/(:num)', 'District::addschool/$1');
+$routes->get('district/manage_reviewed_surveys', 'District::manage_reviewed_surveys');
+$routes->get('district/delete_survey', 'District::delete_survey');
+$routes->get('district/manage_submitted_surveys', 'District::manage_submitted_surveys');
+$routes->get('district/manage_school_reports', 'District::manage_school_reports');
+$routes->get('district/delete_school/(:num)', 'District::delete_school/$1');
 
 
 
@@ -50,6 +59,7 @@ $routes->get('admin/check_districtadmin', 'Admin::check_districtname');
 $routes->get('admin/check_districtadmin_email', 'Admin::check_districtname');
 $routes->get('admin/deactivate_districts/(:num)', 'Admin::deactivate_districts/$1');
 $routes->get('admin/activate_districts/(:num)', 'Admin::activate_districts/$1');
+$routes->get('admin/delete_school/(:num)', 'Admin::delete_school/$1');
 $routes->get('admin/delete_districts/(:num)', 'Admin::delete_districts/$1');
 $routes->get('admin/manage_schools', 'Admin::manage_schools');
 

@@ -14,24 +14,27 @@
         <div class="row">
 
 	<section class="content">
-
+<?php 
+$district_id = isset($_GET['district_id'])?$_GET['district_id']:0;
+$school_id = isset($_GET['school_id'])?$_GET['school_id']:0;
+?>
 		<form name="export_import" id="export_import" method="post" enctype="multipart/form-data">
 		<div class="nav-tabs-horizontal">
 			<ul class="nav nav-tabs" role="tablist">
                 <li class="nav-item" style="width:33%">
-                	<a class="nav-link active" href="<?php echo BASE_URL.'district/manage_surveys?district_id='.$_GET['district_id']; ?>" style="background: #dfdfdf"><strong>Manage Surveys</strong></a>
+                	<a class="nav-link active" href="<?php echo BASE_URL.'district/manage_surveys?district_id='.$district_id; ?>" style="background: #dfdfdf"><strong>Manage Surveys</strong></a>
                 </li>
 		  		<li class="nav-item" style="width:33%">
-		  			<a class="nav-link" href="<?php echo BASE_URL.'district/manage_school_reports?district_id='.$_GET['district_id'].'&school_id='.$_GET['school_id']; ?>" style="background: #dfdfdf"><strong>Manage Reports</strong></a>
+		  			<a class="nav-link" href="<?php echo BASE_URL.'district/manage_school_reports?district_id='.$district_id.'&school_id='.$school_id; ?>" style="background: #dfdfdf"><strong>Manage Reports</strong></a>
 		  		</li>
             </ul>
 
             <ul class="nav nav-tabs" role="tablist" style="margin-top:10px">
                 <li class="nav-item" style="width:33%">
-                	<a class="nav-link"href="<?php echo BASE_URL.'district/manage_surveys?school_id='.$_GET['school_id']; ?>" style="background: #dfdfdf"><strong>Surveys sent to school to be completed</strong></a>
+                	<a class="nav-link"href="<?php echo BASE_URL.'district/manage_surveys?school_id='.$school_id; ?>" style="background: #dfdfdf"><strong>Surveys sent to school to be completed</strong></a>
                 </li>
 		  		<li class="nav-item" style="width:33%">
-		  			<a class="nav-link " href="<?php echo BASE_URL.'district/manage_submitted_surveys?school_id='.$_GET['school_id']; ?>" style="background: #dfdfdf"><strong>Surveys completed by school and returned</strong></a>
+		  			<a class="nav-link " href="<?php echo BASE_URL.'district/manage_submitted_surveys?school_id='.$school_id; ?>" style="background: #dfdfdf"><strong>Surveys completed by school and returned</strong></a>
 		  		</li>
 		  		<li class="nav-item" style="width:33%">
 		  			<a class="nav-link active" href="javascript:" style="background: #dfdfdf"><strong>Completed and Returned Surveys</strong></a>
@@ -49,43 +52,7 @@
 				<!-- block -->
 
 				<!--For Flash message-->
-
-				<?php if ($this->session->flashdata('sucess_msg')) { ?>
-
-				<div class="alert alert-success">
-
-						 <a href="#" class="close" data-dismiss="alert">&times;</a>
-
-						  <?php
-
-								 echo $this->session->flashdata('sucess_msg');
-
-								 $this->session->unset_userdata('sucess_msg');
-
-						  ?>
-
-				</div>
-
-				<?php } ?>
-
-				<?php if ($this->session->flashdata('error_msg')) { ?>
-
-				<div class="alert alert-danger">
-
-						<a href="#" class="close" data-dismiss="alert">&times;</a>
-
-						 <?php
-
-								echo $this->session->flashdata('error_msg');
-
-								$this->session->unset_userdata('error_msg');
-
-						 ?>
-
-				</div>
-
-				<?php } ?>
-
+				<?= $this->include('common/alerts'); ?>
 				<!--End Flash message-->
 
 					<div class="block-content collapse in">

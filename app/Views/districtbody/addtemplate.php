@@ -11,7 +11,7 @@
         	<section class="content">
         	    <!-- Small boxes (Stat box) -->
                      <!-- BEGIN FORM-->
-                    <form action="<?php echo BASE_URL.'admin/save_template_content'; ?>" id="form_sample_3" method="post" enctype="multipart/form-data">
+                    <form action="<?php echo BASE_URL.'district/save_template_content'; ?>" id="form_sample_3" method="post" enctype="multipart/form-data">
                         <div class="margin-bottom-50">
                             <div class="nav-tabs-horizontal">
                                 <ul class="nav nav-tabs" role="tablist">
@@ -21,7 +21,7 @@
                                     <li class="nav-item">
                                         <?php
                                         if(!empty($selectval)) { ?>
-                                            <a class="nav-link" href="<?php echo BASE_URL.'admin/addtemplate_step2/'.$template_id; ?>">Step 2</a>
+                                            <a class="nav-link" href="<?php echo BASE_URL.'district/addtemplate_step2/'.$template_id; ?>">Step 2</a>
                                         <?php } else { ?>
                                             <a class="nav-link" href="javascript:">Step 2</a>
                                         <?php } ?>
@@ -29,7 +29,7 @@
                                     <li class="nav-item">
                                         <?php
                                         if(!empty($selectval)) { ?>
-                                            <a class="nav-link" href="<?php echo BASE_URL.'admin/addtemplate_step3/'.$template_id; ?>">Step 3</a>
+                                            <a class="nav-link" href="<?php echo BASE_URL.'district/addtemplate_step3/'.$template_id; ?>">Step 3</a>
                                         <?php } else { ?>
                                             <a class="nav-link" href="javascript:">Step 3</a>
                                         <?php } ?>
@@ -131,8 +131,8 @@
                             </div>
                         </div>
                         <input type="hidden" name="hidden_template_id" id="hidden_template_id" value="<?php echo $template_id; ?>">
-                        <input type="hidden" name="hidden_school_id" id="hidden_school_id" value="<?php echo $_GET['school_id']; ?>">
-                        <input type="hidden" name="hidden_district_id" id="hidden_district_id" value="<?php echo $_GET['district_id']; ?>">
+                        <input type="hidden" name="hidden_school_id" id="hidden_school_id" value="<?php echo isset($_GET['school_id'])?$_GET['school_id']:0; ?>">
+                        <input type="hidden" name="hidden_district_id" id="hidden_district_id" value="<?php echo isset($_GET['district_id'])?$_GET['district_id']:0; ?>">
                         <input type="submit" class="btn btn-primary submit_step_1" name="Submit_step1" value="Proceed to Step 2">
                     </form>
 
@@ -194,7 +194,7 @@ function ajax_response(e){
         {
             var count_editor = $(".editor").length;
             $.ajax({
-                url:"<?php echo BASE_URL.'admin/ajax_create_master_template'; ?>",
+                url:"<?php echo BASE_URL.'district/ajax_create_master_template'; ?>",
                 type:"post",
                 data:{formdatas:$("#form_sample_3").serialize(),template_name:template_name,template_id:hidden_template_id,count_editor:count_editor},
                 success: function(result)
@@ -209,7 +209,7 @@ function ajax_response(e){
                            return decodeURI(results[1]) || 0;
                         }
                     }
-                    var url = 'admin/addtemplate/'+result;
+                    var url = 'district/addtemplate/'+result;
                     window.history.replaceState(null, null, "<?php echo BASE_URL; ?>"+url);
                 }
             });
@@ -220,7 +220,7 @@ function ajax_response(e){
         {
             var count_editor = $(".editor").length;
             $.ajax({
-                url:"<?php echo BASE_URL.'admin/ajax_create_master_template'; ?>",
+                url:"<?php echo BASE_URL.'district/ajax_create_master_template'; ?>",
                 type:"post",
                 data:{formdatas:$("#form_sample_3").serialize(),template_name:template_name,template_id:hidden_template_id,count_editor:count_editor},
                 success: function(result)

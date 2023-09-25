@@ -1,3 +1,6 @@
+<?php 
+$this->db = \Config\Database::connect();
+?>
 <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
@@ -228,10 +231,6 @@
 
                                                         <?php
 
-                                                        $district_id = $this->session->userdata('gowritedistrictadmin_Userid');
-
-                                                        $schools = $this->db->select('*')->from('go_schools')->where('district_id',$district_id)->get()->result_array();
-
                                                         $output = '';
 
                                                         if(!empty($schools))
@@ -286,7 +285,7 @@
 
                                                         <?php
 
-                                                        $files = $this->db->select('*')->from('principal_attachments')->where('type',$type)->order_by('id','desc')->get()->result_array();
+                                                        $files = $this->db->table('principal_attachments')->select('*')->where('type',$type)->orderBy('id','desc')->get()->getResultArray();
 
                                                         $i = 1;
 
@@ -353,10 +352,6 @@
                         <select name="filter_school" class="form-control filter_school">
 
                             <?php
-
-                            $district_id = $this->session->userdata('gowritedistrictadmin_Userid');
-
-                            $schools = $this->db->select('*')->from('go_schools')->where('district_id',$district_id)->get()->result_array();
 
                             $output = '';
 
@@ -438,7 +433,7 @@
 
                             <?php
 
-                            $reports = $this->db->select('*')->from('principal_attachments')->where('district_id',$district_id)->where('type',$_GET['type'])->get()->result_array();
+                            $reports = $this->db->table('principal_attachments')->select('*')->where('district_id',$district_id)->where('type',$_GET['type'])->get()->getResultArray();
 
                             $i = 1;
 
@@ -450,7 +445,7 @@
 
                                 {
 
-                                    $school_details = $this->Madmin->Select_Val_Id('go_schools',$report['school_id']);
+                                    $school_details = $this->db->table('go_schools')->select('*')->where('id', $report['school_id'])->get()->getRowArray();
 
                                     $expfilename = explode(".",$report['filename']);
 
@@ -946,7 +941,7 @@
 
             var template_id = $(".choose_template").val();
 
-            var school_id = "<?php echo $_GET['school_id']; ?>";
+            var school_id = "<?php echo isset($_GET['school_id'])?$_GET['school_id']:0; ?>";
 
             if(template_id == "")
 
