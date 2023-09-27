@@ -1,3 +1,6 @@
+<?php 
+$this->db = \Config\Database::connect();
+?>
 <style>
 
     .header_p { color:green; font-weight:600;margin-bottom: 3px; }
@@ -278,9 +281,9 @@
 
                                                         <?php
 
-                                                        $school = $this->session->userdata('gowriteschooladmin_Userid');
+                                                        $school = $this->session->get('gowriteschooladmin_Userid');
 
-                                                        $files = $this->db->select('*')->from('principal_attachments')->where('type',$type)->where('school_id',$school)->order_by('id','desc')->get()->result_array();
+                                                        $files = $this->db->table('principal_attachments')->select('*')->where('type',$type)->where('school_id',$school)->orderBy('id','desc')->get()->getResultArray();
 
                                                         $i = 1;
 
@@ -350,7 +353,7 @@
 
                             <?php
 
-                            $reports = $this->db->select('*')->from('principal_attachments')->where('type',$_GET['type'])->where('school_id',$this->session->userdata('gowriteschooladmin_Userid'))->get()->result_array();
+                            $reports = $this->db->table('principal_attachments')->select('*')->where('type',$_GET['type'])->where('school_id',$this->session->get('gowriteschooladmin_Userid'))->get()->getResultArray();
 
                             $i = 1;
 

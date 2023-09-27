@@ -325,7 +325,7 @@ textarea{
           <div class="row">
             <h4>Step1</h4>
             <?php
-            $template_details = $this->db->select('*')->from('master_templates')->where('id',$template_id)->get()->row_array();
+            $template_details = $this->db->table('master_templates')->select('*')->where('id',$template_id)->get()->getRowArray();
             if(!empty($template_details))
             {
                 $unserialize = unserialize($template_details['content']);
@@ -415,7 +415,7 @@ textarea{
           <div class="row">
             <h4>Step1</h4>
             <?php
-            $template_details = $this->db->select('*')->from('master_templates')->where('id',$template_id)->get()->row_array();
+            $template_details = $this->db->table('master_templates')->select('*')->where('id',$template_id)->get()->getRowArray();
             if(!empty($template_details))
             {
                 $unserialize = unserialize($template_details['content']);
@@ -477,7 +477,7 @@ textarea{
                                     </li>
                                     <li class="nav-item" style="float:right">
                                       <?php
-                                      $template_details = $this->db->select('*')->from('master_templates')->where('id',$template_id)->get()->row_array();
+                                      $template_details = $this->db->table('master_templates')->select('*')->where('id',$template_id)->get()->getRowArray();
                                       if($template_details['status'] >= 3) {
                                         ?>
                                         <?php
@@ -523,6 +523,7 @@ textarea{
                                     	if(!empty($forms))
                                     	{
                                     		$outputval = '';
+                                    		$disabled = '';
                                     		foreach($forms as $key => $form)
                                     		{
                                     			$keycountval = $key + 1;
@@ -564,7 +565,7 @@ textarea{
 					                                        	<textarea name="comments[]" class="form-control comments_input" '.$disabled.' style="display:none">'.$form['comments'].'</textarea>
 					                                        </div>
 					                                    </div>';
-					                                $get_sub_inputs = $this->db->select('*')->from('template_forms')->where('sub_id',$form['id'])->where('template_id',$form['template_id'])->get()->result_array();
+					                                $get_sub_inputs = $this->db->table('template_forms')->select('*')->where('sub_id',$form['id'])->where('template_id',$form['template_id'])->get()->getResultArray();
 					                                if(!empty($get_sub_inputs))
 					                                {
 					                                	foreach($get_sub_inputs as $keyvalinput => $input)
@@ -641,7 +642,7 @@ textarea{
 							                                	if($template_details['status'] >= 3) { $disabled = 'disabled'; } else { $disabled = ''; }
                                                 $downloadfile = '';
                                                 if($template_details['status'] >= 3) { 
-                                                  $files = $this->db->select('*')->from('template_attachments')->where('form_id',$input['id'])->get()->result_array();
+                                                  $files = $this->db->table('template_attachments')->select('*')->where('form_id',$input['id'])->get()->getResultArray();
                                                   if(!empty($files))
                                                   {
                                                     $downloadfile_image = '';
@@ -860,7 +861,7 @@ textarea{
 			                                        <h6>'.$form['summary'].'</h6>
 			                                    </div>
                                           <div class="col-md-4" style="'.$hide_summary.'">';
-                                              $files_summary = $this->db->select('*')->from('template_attachments')->where('form_id',$form['id'])->get()->result_array();
+                                              $files_summary = $this->db->table('template_attachments')->select('*')->where('form_id',$form['id'])->get()->getResultArray();
                                               if(!empty($files_summary))
                                               {
                                                 $downloadfile_image = '';

@@ -1,3 +1,7 @@
+<?php 
+$this->db = \Config\Database::connect();
+$this->session = \Config\Services::session();
+?>
 <section class="page-content">
   <div class="page-content-inner">
     <!-- Dashboard -->
@@ -44,7 +48,7 @@
                                 <h5 class="text-uppercase" style="width:100%">Manage Fiscal Reports</h5>
                                 <i class="fa fa-file" style="font-size:46px"></i>
                                 <span class="counter-count">
-                                    <?php $report_count = $this->db->select('*')->from('reports')->where('school_id',$this->session->userdata('gowriteschooladmin_Userid'))->get()->num_rows(); ?>
+                                    <?php $report_count = $this->db->table('reports')->select('*')->where('school_id',$this->session->get('gowriteschooladmin_Userid'))->countAllResults(); ?>
                                     <span class="counter-init" data-from="0" data-to="14"></span>
                                 </span>
                             </div>
@@ -60,7 +64,7 @@
                                 <h5 class="text-uppercase" style="width:100%">Manage Oversight Survey</h5>
                                 <i class="fa fa-file-text-o" style="font-size:46px"></i>
                                 <span class="counter-count">
-                                    <?php $review_count = $this->db->select('*')->from('master_templates')->where('school_id',$this->session->userdata('gowriteschooladmin_Userid'))->get()->num_rows(); ?>
+                                    <?php $review_count = $this->db->table('master_templates')->select('*')->where('school_id',$this->session->get('gowriteschooladmin_Userid'))->countAllResults(); ?>
                                     <span class="counter-init" data-from="0" data-to="<?php echo $review_count; ?>"></span>
                                 </span>
                             </div>
@@ -81,7 +85,7 @@
             </div>
         </div>
         <?php
-        if($selectval['landing_message'] != "") { ?>
+        if(isset($selectval['landing_message']) != "") { ?>
             <div class="row" style="margin: 10px;background: #dfdfdf;padding: 20px;border: 1px solid #b7b7b7;">
                 <?php echo $selectval['landing_message']; ?>
             </div>

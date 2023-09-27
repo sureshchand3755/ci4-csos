@@ -2203,6 +2203,6 @@ class District extends BaseController
     public function logout()
 	{
 		$this->session->destroy();
-		return redirect()->to(base_url('administrator'));
+		return redirect()->to(base_url('/'));
 	}
 }

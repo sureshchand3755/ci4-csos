@@ -223,81 +223,7 @@
 
 
 				<!--For Flash message-->
-
-
-
-				<?php if ($this->session->flashdata('sucess_msg')) { ?>
-
-
-
-				<div class="alert alert-success">
-
-
-
-						 <a href="#" class="close" data-dismiss="alert">&times;</a>
-
-
-
-						  <?php
-
-
-
-								 echo $this->session->flashdata('sucess_msg');
-
-
-
-								 $this->session->unset_userdata('sucess_msg');
-
-
-
-						  ?>
-
-
-
-				</div>
-
-
-
-				<?php } ?>
-
-
-
-				<?php if ($this->session->flashdata('error_msg')) { ?>
-
-
-
-				<div class="alert alert-danger">
-
-
-
-						<a href="#" class="close" data-dismiss="alert">&times;</a>
-
-
-
-						 <?php
-
-
-
-								echo $this->session->flashdata('error_msg');
-
-
-
-								$this->session->unset_userdata('error_msg');
-
-
-
-						 ?>
-
-
-
-				</div>
-
-
-
-				<?php } ?>
-
-
-
+				<?= $this->include('common/alerts'); ?>
 				<!--End Flash message-->
 
 
@@ -368,7 +294,7 @@
 
 										{
 
-											$school_details = $this->Madmin->Select_Val_Id('go_schools',$attachment['school_id']);
+											$school_details = $this->db->table('go_schools')->select('*')->where('id', $attachment['school_id'])->get()->getRowArray();
 
 											$explodefile = explode("||",$attachment['filename']);
 
@@ -637,7 +563,7 @@ $(window).click(function(e) {
 
           $.ajax({
 
-            url:"<?php echo BASE_URL.'district/show_existing_comments'; ?>",
+            url:"<?php echo BASE_URL.'school/show_existing_comments'; ?>",
 
             type:"post",
 
@@ -701,7 +627,7 @@ $(window).click(function(e) {
 
           $.ajax({
 
-            url:"<?php echo BASE_URL.'district/add_comment_specifics'; ?>",
+            url:"<?php echo BASE_URL.'school/add_comment_specifics'; ?>",
 
             type:"post",
 
@@ -871,7 +797,7 @@ $(window).click(function(e) {
 
 		var template_id = $(".choose_template").val();
 
-		var district_id = "<?php echo $_GET['district_id']; ?>";
+		var district_id = "<?php echo isset($_GET['district_id'])?$_GET['district_id']:0 ?>";
 
 		if(template_id == "")
 

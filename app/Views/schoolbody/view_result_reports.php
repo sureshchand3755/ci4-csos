@@ -57,9 +57,10 @@
                     </thead>
                     <tbody id="report_tbody">
                         <?php
-                        $school_id = $this->session->userdata('gowriteschooladmin_Userid');
+                        $school_id = $this->session->get('gowriteschooladmin_Userid');
                         $year = date('Y');
-                        $result = $this->db->select('*')->from('report_result')->where('school_id',$school_id)->where('year',$year)->get()->row_array();
+                        $output  = '';
+                        $result = $this->db->table('report_result')->select('*')->where('school_id',$school_id)->where('year',$year)->get()->getRowArray();
                         if(!empty($result))
                         {
                             $due_dates = unserialize($result['due_dates']);
@@ -69,21 +70,21 @@
                         }
                         $prev_year = $year;
                         $current_year = $year + 1;
-                        $report_1 = $this->db->query("SELECT * FROM (`principal_attachments`) WHERE `school_id` = '$school_id' AND `type` = '11' AND (`updatetime` LIKE '$prev_year%' OR `updatetime` LIKE '$current_year%') ORDER BY `updatetime` desc")->row_array();
-                        $report_2 = $this->db->query("SELECT * FROM (`principal_attachments`) WHERE `school_id` = '$school_id' AND `type` = '12' AND (`updatetime` LIKE '$prev_year%' OR `updatetime` LIKE '$current_year%') ORDER BY `updatetime` desc")->row_array();
-                        $report_3 = $this->db->query("SELECT * FROM (`principal_attachments`) WHERE `school_id` = '$school_id' AND `type` = '13' AND (`updatetime` LIKE '$prev_year%' OR `updatetime` LIKE '$current_year%') ORDER BY `updatetime` desc")->row_array();
-                        $report_4 = $this->db->query("SELECT * FROM (`principal_attachments`) WHERE `school_id` = '$school_id' AND `type` = '14' AND (`updatetime` LIKE '$prev_year%' OR `updatetime` LIKE '$current_year%') ORDER BY `updatetime` desc")->row_array();
-                        $report_5 = $this->db->query("SELECT * FROM (`principal_attachments`) WHERE `school_id` = '$school_id' AND `type` = '16' AND (`updatetime` LIKE '$prev_year%' OR `updatetime` LIKE '$current_year%') ORDER BY `updatetime` desc")->row_array();
-                        $report_6 = $this->db->query("SELECT * FROM (`principal_attachments`) WHERE `school_id` = '$school_id' AND `type` = '15' AND (`updatetime` LIKE '$prev_year%' OR `updatetime` LIKE '$current_year%') ORDER BY `updatetime` desc")->row_array();
-                        $report_7 = $this->db->query("SELECT * FROM (`principal_attachments`) WHERE `school_id` = '$school_id' AND `type` = '4' AND (`updatetime` LIKE '$prev_year%' OR `updatetime` LIKE '$current_year%') ORDER BY `updatetime` desc")->row_array();
-                        $report_8 = $this->db->query("SELECT * FROM (`principal_attachments`) WHERE `school_id` = '$school_id' AND `type` = '1' AND (`updatetime` LIKE '$prev_year%' OR `updatetime` LIKE '$current_year%') ORDER BY `updatetime` desc")->row_array();
-                        $report_9 = $this->db->query("SELECT * FROM (`principal_attachments`) WHERE `school_id` = '$school_id' AND `type` = '2' AND (`updatetime` LIKE '$prev_year%' OR `updatetime` LIKE '$current_year%') ORDER BY `updatetime` desc")->row_array();
-                        $report_10 = $this->db->query("SELECT * FROM (`principal_attachments`) WHERE `school_id` = '$school_id' AND `type` = '3' AND (`updatetime` LIKE '$prev_year%' OR `updatetime` LIKE '$current_year%') ORDER BY `updatetime` desc")->row_array();
-                        $report_11 = $this->db->query("SELECT * FROM (`principal_attachments`) WHERE `school_id` = '$school_id' AND `type` = '5' AND (`updatetime` LIKE '$prev_year%' OR `updatetime` LIKE '$current_year%') ORDER BY `updatetime` desc")->row_array();
-                        $report_12 = $this->db->query("SELECT * FROM (`principal_attachments`) WHERE `school_id` = '$school_id' AND `type` = '6' AND (`updatetime` LIKE '$prev_year%' OR `updatetime` LIKE '$current_year%') ORDER BY `updatetime` desc")->row_array();
-                        $report_15 = $this->db->query("SELECT * FROM (`principal_attachments`) WHERE `school_id` = '$school_id' AND `type` = '9' AND (`updatetime` LIKE '$prev_year%' OR `updatetime` LIKE '$current_year%') ORDER BY `updatetime` desc")->row_array();
-                        $report_13 = $this->db->query("SELECT * FROM (`principal_attachments`) WHERE `school_id` = '$school_id' AND `type` = '7' AND (`updatetime` LIKE '$prev_year%' OR `updatetime` LIKE '$current_year%') ORDER BY `updatetime` desc")->row_array();
-                        $report_14 = $this->db->query("SELECT * FROM (`principal_attachments`) WHERE `school_id` = '$school_id' AND `type` = '8' AND (`updatetime` LIKE '$prev_year%' OR `updatetime` LIKE '$current_year%') ORDER BY `updatetime` desc")->row_array();
+                        $report_1 = $this->db->query("SELECT * FROM (`principal_attachments`) WHERE `school_id` = '$school_id' AND `type` = '11' AND (`updatetime` LIKE '$prev_year%' OR `updatetime` LIKE '$current_year%') ORDER BY `updatetime` desc")->getRowArray();
+                        $report_2 = $this->db->query("SELECT * FROM (`principal_attachments`) WHERE `school_id` = '$school_id' AND `type` = '12' AND (`updatetime` LIKE '$prev_year%' OR `updatetime` LIKE '$current_year%') ORDER BY `updatetime` desc")->getRowArray();
+                        $report_3 = $this->db->query("SELECT * FROM (`principal_attachments`) WHERE `school_id` = '$school_id' AND `type` = '13' AND (`updatetime` LIKE '$prev_year%' OR `updatetime` LIKE '$current_year%') ORDER BY `updatetime` desc")->getRowArray();
+                        $report_4 = $this->db->query("SELECT * FROM (`principal_attachments`) WHERE `school_id` = '$school_id' AND `type` = '14' AND (`updatetime` LIKE '$prev_year%' OR `updatetime` LIKE '$current_year%') ORDER BY `updatetime` desc")->getRowArray();
+                        $report_5 = $this->db->query("SELECT * FROM (`principal_attachments`) WHERE `school_id` = '$school_id' AND `type` = '16' AND (`updatetime` LIKE '$prev_year%' OR `updatetime` LIKE '$current_year%') ORDER BY `updatetime` desc")->getRowArray();
+                        $report_6 = $this->db->query("SELECT * FROM (`principal_attachments`) WHERE `school_id` = '$school_id' AND `type` = '15' AND (`updatetime` LIKE '$prev_year%' OR `updatetime` LIKE '$current_year%') ORDER BY `updatetime` desc")->getRowArray();
+                        $report_7 = $this->db->query("SELECT * FROM (`principal_attachments`) WHERE `school_id` = '$school_id' AND `type` = '4' AND (`updatetime` LIKE '$prev_year%' OR `updatetime` LIKE '$current_year%') ORDER BY `updatetime` desc")->getRowArray();
+                        $report_8 = $this->db->query("SELECT * FROM (`principal_attachments`) WHERE `school_id` = '$school_id' AND `type` = '1' AND (`updatetime` LIKE '$prev_year%' OR `updatetime` LIKE '$current_year%') ORDER BY `updatetime` desc")->getRowArray();
+                        $report_9 = $this->db->query("SELECT * FROM (`principal_attachments`) WHERE `school_id` = '$school_id' AND `type` = '2' AND (`updatetime` LIKE '$prev_year%' OR `updatetime` LIKE '$current_year%') ORDER BY `updatetime` desc")->getRowArray();
+                        $report_10 = $this->db->query("SELECT * FROM (`principal_attachments`) WHERE `school_id` = '$school_id' AND `type` = '3' AND (`updatetime` LIKE '$prev_year%' OR `updatetime` LIKE '$current_year%') ORDER BY `updatetime` desc")->getRowArray();
+                        $report_11 = $this->db->query("SELECT * FROM (`principal_attachments`) WHERE `school_id` = '$school_id' AND `type` = '5' AND (`updatetime` LIKE '$prev_year%' OR `updatetime` LIKE '$current_year%') ORDER BY `updatetime` desc")->getRowArray();
+                        $report_12 = $this->db->query("SELECT * FROM (`principal_attachments`) WHERE `school_id` = '$school_id' AND `type` = '6' AND (`updatetime` LIKE '$prev_year%' OR `updatetime` LIKE '$current_year%') ORDER BY `updatetime` desc")->getRowArray();
+                        $report_15 = $this->db->query("SELECT * FROM (`principal_attachments`) WHERE `school_id` = '$school_id' AND `type` = '9' AND (`updatetime` LIKE '$prev_year%' OR `updatetime` LIKE '$current_year%') ORDER BY `updatetime` desc")->getRowArray();
+                        $report_13 = $this->db->query("SELECT * FROM (`principal_attachments`) WHERE `school_id` = '$school_id' AND `type` = '7' AND (`updatetime` LIKE '$prev_year%' OR `updatetime` LIKE '$current_year%') ORDER BY `updatetime` desc")->getRowArray();
+                        $report_14 = $this->db->query("SELECT * FROM (`principal_attachments`) WHERE `school_id` = '$school_id' AND `type` = '8' AND (`updatetime` LIKE '$prev_year%' OR `updatetime` LIKE '$current_year%') ORDER BY `updatetime` desc")->getRowArray();
                         $output.='<tr>
                             <td class="due_date_td_11">'; if(isset($due_dates[0])) { $output.=date('F d Y', strtotime($due_dates[0])); } $output.='</td>
                             <td>Annual Adopted Budget</td>

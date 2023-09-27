@@ -61,20 +61,21 @@ class Home extends BaseController
             if (!$this->validate($rules)) {
                 return $this->schoolTemplate('schoolbody/login'); 
             }else{
-                // $inputEmail 		= 'Patrick';
-                // $inputPassword 		= 'admin';
-                $inputData['username'] 		= htmlspecialchars($this->request->getVar('email', FILTER_UNSAFE_RAW));
-                $inputData['password'] 		= htmlspecialchars($this->request->getVar('password', FILTER_UNSAFE_RAW));
+                $inputData['username'] 		= 'Denice';
+                $inputData['password'] 		= '123456';
+                // $inputData['username'] 		= htmlspecialchars($this->request->getVar('email', FILTER_UNSAFE_RAW));
+                // $inputData['password'] 		= htmlspecialchars($this->request->getVar('password', FILTER_UNSAFE_RAW));
                 $usertype =  $this->request->getVar('usertype');
                 if($usertype == 1){
-					$result = $this->schoolModel->SchoolValidateLogin($inputData);
+					$result = $this->schoolModel->SchoolLogin($inputData);
                     if(count($result) > 0){
-						session()->set([
-                            'gowritedistrictadmin_Userid'		=> $result['id'],
-                            'gowritedistrictadmin_Username'		=> $result['username'],
-                            'gowritedistrictadmin_Fullname'		=> $result['fullname'],
+                        session()->set([
+                            'gowriteschooladmin_Userid'		=> $result['id'],
+                            'gowriteschooladmin_Username'		=> $result['username'],
+                            'gowriteschooladmin_Fullname'		=> $result['principal_name'],
                             'isLoggedIn' 	=> TRUE
                         ]);
+						
 						// $remember_me = $this->input->post('remember_me');
 						// if($remember_me=='1')
 						// {

@@ -66,7 +66,7 @@
                                     </li>
                                     <li class="nav-item" style="float:right">
                                         <?php
-                                        $template_details = $this->db->select('*')->from('master_templates')->where('id',$template_id)->get()->row_array();
+                                        $template_details = $this->db->table('master_templates')->select('*')->where('id',$template_id)->get()->getRowArray();
                                         if($template_details['status'] >= 3) {
                                         ?>
                                         <?php

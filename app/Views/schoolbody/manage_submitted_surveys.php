@@ -74,43 +74,7 @@
 				<!-- block -->
 
 				<!--For Flash message-->
-
-				<?php if ($this->session->flashdata('sucess_msg')) { ?>
-
-				<div class="alert alert-success">
-
-						 <a href="#" class="close" data-dismiss="alert">&times;</a>
-
-						  <?php
-
-								 echo $this->session->flashdata('sucess_msg');
-
-								 $this->session->unset_userdata('sucess_msg');
-
-						  ?>
-
-				</div>
-
-				<?php } ?>
-
-				<?php if ($this->session->flashdata('error_msg')) { ?>
-
-				<div class="alert alert-danger">
-
-						<a href="#" class="close" data-dismiss="alert">&times;</a>
-
-						 <?php
-
-								echo $this->session->flashdata('error_msg');
-
-								$this->session->unset_userdata('error_msg');
-
-						 ?>
-
-				</div>
-
-				<?php } ?>
-
+				<?= $this->include('common/alerts'); ?>
 				<!--End Flash message-->
 
 					<div class="block-content collapse in">
@@ -251,7 +215,7 @@ $(window).click(function(e) {
 	if($(e.target).hasClass('take_a_copy'))
 	{
 		var template_id = $(".choose_template").val();
-		var school_id = "<?php echo $_GET['school_id']; ?>";
+		var school_id = "<?php echo isset($_GET['school_id'])?$_GET['school_id']:0 ?>";
 		if(template_id == "")
 		{
 			alert("Please Select the Template and then take a copy of it.")

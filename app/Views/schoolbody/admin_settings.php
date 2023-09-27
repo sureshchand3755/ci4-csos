@@ -71,10 +71,10 @@
                                     <input type="text" name="contactemail" id="contactemail" class="form-control" placeholder="Contact Email" value="<?php echo $selectval['contactemail']; ?>">
                                 </div>
                             </div>
-                            <div class="form-group">
+                            <!-- <div class="form-group">
                                 <label for="oldpassword">Admin Current Password</label>
-                                <input type="text" class="form-control" id="viewpassword" name="viewpassword" placeholder="View Password" value="<?php echo $this->encrypt->decode($selectval['password']); ?>" disabled>
-                            </div>
+                                <input type="text" class="form-control" id="viewpassword" name="viewpassword" placeholder="View Password" value="<?php //echo $this->encrypt->decode($selectval['password']); ?>" disabled>
+                            </div> -->
                             <div class="form-group">
                                 <label for="newpassword">Enter New Password</label>
                                 <input type="password" class="form-control" id="newpassword" name="newpassword" placeholder="New Password" autocomplete="off" value="">
@@ -93,7 +93,7 @@
                                         <?php
                                         if($selectval['image']=='') {
                                         ?>
-                                            <img src="<?php echo BASE_URL.ADMIN_IMG; ?>avatar5.png" class="thumbnail" id="blah" width="170" height="200">
+                                            <img src="<?php echo BASE_URL; ?>assets/images/avatar5.png" class="thumbnail" id="blah" width="170" height="200">
                                         <?php
                                         }
                                         else {
@@ -282,7 +282,7 @@
                         <div class="box-body">
                             <div class="form-group">
                                 <label for="oldpassword">Admin Current Password</label>
-                                <input type="text" class="form-control" id="viewpassword" name="viewpassword" placeholder="View Password" value="<?php echo $this->encrypt->decode($selectval['password']); ?>" disabled>
+                                <input type="text" class="form-control" id="viewpassword" name="viewpassword" placeholder="View Password" value="<?php //echo $this->encrypt->decode($selectval['password']); ?>" disabled>
                             </div>
                             <div class="form-group">
                                 <label for="oldpassword">Enter Current Password</label>

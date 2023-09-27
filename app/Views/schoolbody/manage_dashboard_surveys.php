@@ -1,3 +1,6 @@
+<?php 
+$this->db = \Config\Database::connect();
+?>
 <section class="page-content">
   <div class="page-content-inner">
     <!-- Dashboard -->
@@ -11,7 +14,7 @@
                                 <h5 class="text-uppercase">Surveys Not Submitted</h5>
                                 <i class="counter-icon icmn-users"></i>
                                 <span class="counter-count">
-                                    <?php $not_count = $this->db->select('*')->from('master_templates')->where('school_id',$this->session->userdata('gowriteschooladmin_Userid'))->where('status >',0)->where('status <',3)->get()->num_rows(); ?>
+                                    <?php $not_count = $this->db->table('master_templates')->select('*')->where('school_id',$this->session->get('gowriteschooladmin_Userid'))->where('status >',0)->where('status <',3)->countAllResults(); ?>
                                     <span class="counter-init" data-from="0" data-to="<?php echo $not_count; ?>"></span>
                                 </span>
                             </div>
@@ -27,7 +30,7 @@
                                 <h5 class="text-uppercase">Submitted Surveys</h5>
                                 <i class="counter-icon icmn-users"></i>
                                 <span class="counter-count">
-                                    <?php $submit_count = $this->db->select('*')->from('master_templates')->where('school_id',$this->session->userdata('gowriteschooladmin_Userid'))->where('status',3)->get()->num_rows(); ?>
+                                    <?php $submit_count = $this->db->table('master_templates')->select('*')->where('school_id',$this->session->get('gowriteschooladmin_Userid'))->where('status',3)->countAllResults(); ?>
                                     <span class="counter-init" data-from="0" data-to="<?php echo $submit_count; ?>"></span>
                                 </span>
                             </div>
@@ -43,7 +46,7 @@
                                 <h5 class="text-uppercase">Reviewed Surveys</h5>
                                 <i class="counter-icon icmn-users"></i>
                                 <span class="counter-count">
-                                    <?php $review_count = $this->db->select('*')->from('master_templates')->where('school_id',$this->session->userdata('gowriteschooladmin_Userid'))->where('status',4)->get()->num_rows(); ?>
+                                    <?php $review_count = $this->db->table('master_templates')->select('*')->where('school_id',$this->session->get('gowriteschooladmin_Userid'))->where('status',4)->countAllResults(); ?>
                                     <span class="counter-init" data-from="0" data-to="<?php echo $review_count; ?>"></span>
                                 </span>
                             </div>

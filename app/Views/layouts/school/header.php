@@ -1,3 +1,8 @@
+<?php 
+$this->router= \Config\Services::router(); 
+$this->db = \Config\Database::connect();
+$this->session 	= \Config\Services::session();
+?>
 <nav class="top-menu">
     <div class="menu-icon-container">
         <a href="<?php echo BASE_URL.'school/dashboard'; ?>" class="logo">
@@ -19,7 +24,7 @@
             <div class="dropdown dropdown-avatar">
                 <a href="javascript: void(0);" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                     <span class="avatar" href="javascript:void(0);">
-                        <?php $admin = $this->Madmin->GetAdminDetail($this->session->userdata('gowriteschooladmin_Userid'),'go_schools');
+                        <?php $admin = $users;
 
                             if($admin['image']=='') {
 
@@ -73,7 +78,7 @@
                     <div class="btn-group" style="margin-top: -6px;">
                       <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <?php 
-                            $method = $this->router->fetch_method();
+                            $method = $this->router->methodName();
                             if($method == "dashboard") { echo 'DASHBOARD'; }
                             elseif($method == "manage_dashboard_surveys") { echo 'DASHBOARD'; }
                             elseif($method == "admin_setting") { echo 'ADMIN SETTINGS'; } 
@@ -102,8 +107,8 @@
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                               <i class="fa fa-bell-o"></i>
                               <?php
-                              $surveys = $this->db->select('*')->from('master_templates')->where('school_id',$this->session->userdata('gowriteschooladmin_Userid'))->where('status >',1)->where('school_status',0)->get()->result_array();
-                              $notifications = $this->db->select('*')->from('notifications')->where('school_id',$this->session->userdata('gowriteschooladmin_Userid'))->where('school_status',1)->get()->result_array();
+                              $surveys = $this->db->table('master_templates')->select('*')->where('school_id',$this->session->get('gowriteschooladmin_Userid'))->where('status >',1)->where('school_status',0)->get()->getResultArray();
+                              $notifications = $this->db->table('notifications')->select('*')->where('school_id',$this->session->get('gowriteschooladmin_Userid'))->where('school_status',1)->get()->getResultArray();
                                 $count = count($surveys) + count($notifications);
                                 if($count > 0){
                                     echo '<span class="label label-warning">'.$count.'</span>';
@@ -141,10 +146,11 @@
                                 {
                                     foreach($notifications as $notify)
                                     {
-                                        $report_details = $this->db->select('*')->from('principal_attachments')->where('id',$notify['report_id'])->get()->row_array();
+                                        $report_details = $this->db->table('principal_attachments')->select('*')->where('id',$notify['report_id'])->get()->getRowArray();
+                                        $type = isset($report_details['type'])?$report_details['type']:'';
                                         ?>
                                         <li class="li_notify">
-                                            <a href="<?php echo BASE_URL.'school/principal_apportionment?type='.$report_details['type'].'&notify='.$notify['id']; ?>">
+                                            <a href="<?php echo BASE_URL.'school/principal_apportionment?type='.$type.'&notify='.$notify['id']; ?>">
                                                 <div style="width:100%">
                                                     <strong><?php echo $notify['message']; ?></strong>
                                                 </div>

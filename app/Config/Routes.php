@@ -19,6 +19,7 @@ $routes->setAutoRoute(true);
  * @var RouteCollection $routes
  */
 $routes->get('/', 'School::index');
+$routes->get('school/login', 'School::index');
 // $routes->get('/', 'Home::index');
 $routes->get('administrator', 'Home::index');
 $routes->post('adminlogin', 'Home::login');
@@ -38,6 +39,8 @@ $routes->get('district/delete_survey', 'District::delete_survey');
 $routes->get('district/manage_submitted_surveys', 'District::manage_submitted_surveys');
 $routes->get('district/manage_school_reports', 'District::manage_school_reports');
 $routes->get('district/delete_school/(:num)', 'District::delete_school/$1');
+
+// $routes->get('school/addtemplate_step2/(:num)', 'School::addtemplate_step2/$1');
 
 
 
