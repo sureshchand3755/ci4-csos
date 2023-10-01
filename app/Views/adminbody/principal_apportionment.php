@@ -479,8 +479,9 @@ $this->db = \Config\Database::connect();
                                 {
 
                                     $explodefile = explode("||",$report['filename']);
+                                    $school_id = isset($template['school_id'])?$template['school_id']:0;
 
-                                    $school_details = $this->db->table('go_schools')->select('*')->where('id', $template['school_id'])->get()->getRowArray();
+                                    $school_details = $this->db->table('go_schools')->select('*')->where('id', $school_id)->get()->getRowArray();
 
                                     if(!empty($explodefile))
 

@@ -33,7 +33,7 @@ class SchoolModel extends Model
     public function SchoolLogin($inputData){
         $row=array();
         $result=$this->db->table('go_schools')->select('*')->where('username',$inputData['username'])->where('deletetime =','')->get()->getRowArray();
-        if(count($result)>0){
+        if(!empty($result) && count($result)>0){
             $row=$result;
             $verify = password_verify($inputData['password'], $row['password']);  
             if($verify){

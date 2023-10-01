@@ -3,6 +3,7 @@ namespace Config;
 
 use CodeIgniter\Router\RouteCollection;
 
+
 /**
  * --------------------------------------------------------------------
  * Router Setup
@@ -22,6 +23,7 @@ $routes->get('/', 'School::index');
 $routes->get('school/login', 'School::index');
 // $routes->get('/', 'Home::index');
 $routes->get('administrator', 'Home::index');
+$routes->get('admin', 'Home::index');
 $routes->post('adminlogin', 'Home::login');
 $routes->get('admin/logout', 'Home::logout');
 

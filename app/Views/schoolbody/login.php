@@ -12,6 +12,7 @@
         <h5 class="modal-title">Login</h5>
       </div>
       <div class="modal-body">
+      <p><?= $this->include('common/alerts'); ?></p>
             <form action="<?php echo base_url('school/login'); ?>" method="post" id="form-validation">  
                 <div class="form-group">
                     <input id="validation-email"

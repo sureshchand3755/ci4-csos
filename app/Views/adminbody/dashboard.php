@@ -1,3 +1,4 @@
+
 <section class="page-content">
   <div class="page-content-inner">
     <!-- Dashboard -->
@@ -11,7 +12,8 @@
                             <h5 class="text-uppercase">Manage Districts</h5>
                             <i class="counter-icon fa fa-university"></i>
                             <span class="counter-count">
-                                <span class="counter-init" data-from="0" data-to="<?php $district_count; ?>"></span>
+                            
+                                <span class="counter-init" data-from="0" data-to="<?= $district_count; ?>"></span>
                             </span>
                         </div>
                         </a>
@@ -26,7 +28,7 @@
                                 <h5 class="text-uppercase">Manage Schools</h5>
                                 <i class="counter-icon fa fa-graduation-cap"></i>
                                 <span class="counter-count">
-                                    <span class="counter-init" data-from="0" data-to="<?php $schools_count; ?>"></span>
+                                    <span class="counter-init" data-from="0" data-to="<?= $schools_count; ?>"></span>
                                 </span>
                             </div>
                             <spam style="font-weight: 800;font-size: 16px;">Reports / Surveys</spam>
@@ -54,7 +56,7 @@
                                 <h5 class="text-uppercase">Master Survey Templates</h5>
                                 <i class="counter-icon fa fa-clone"></i>
                                 <span class="counter-count">
-                                    <span class="counter-init" data-from="0" data-to="<?php $template_count; ?>"></span>
+                                    <span class="counter-init" data-from="0" data-to="<?= $template_count; ?>"></span>
                                 </span>
                             </div>
                         </a>
@@ -69,7 +71,7 @@
                                 <h5 class="text-uppercase">Manage Oversight Survey</h5>
                                 <i class="counter-icon icmn-users"></i>
                                 <span class="counter-count">
-                                    <span class="counter-init" data-from="0" data-to="<?php $survey_count; ?>"></span>
+                                    <span class="counter-init" data-from="0" data-to="<?= $survey_count; ?>"></span>
                                 </span>
                             </div>
                         </a>

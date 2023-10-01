@@ -61,14 +61,14 @@ class Home extends BaseController
             if (!$this->validate($rules)) {
                 return $this->schoolTemplate('schoolbody/login'); 
             }else{
-                $inputData['username'] 		= 'Denice';
-                $inputData['password'] 		= '123456';
-                // $inputData['username'] 		= htmlspecialchars($this->request->getVar('email', FILTER_UNSAFE_RAW));
-                // $inputData['password'] 		= htmlspecialchars($this->request->getVar('password', FILTER_UNSAFE_RAW));
+                // $inputData['username'] 		= 'Denice';
+                // $inputData['password'] 		= '123456';
+                $inputData['username'] 		= htmlspecialchars($this->request->getVar('email', FILTER_UNSAFE_RAW));
+                $inputData['password'] 		= htmlspecialchars($this->request->getVar('password', FILTER_UNSAFE_RAW));
                 $usertype =  $this->request->getVar('usertype');
                 if($usertype == 1){
 					$result = $this->schoolModel->SchoolLogin($inputData);
-                    if(count($result) > 0){
+                    if(!empty($result) && count($result) > 0){
                         session()->set([
                             'gowriteschooladmin_Userid'		=> $result['id'],
                             'gowriteschooladmin_Username'		=> $result['username'],
@@ -91,7 +91,7 @@ class Home extends BaseController
 					}
                 }else{
                     $result = $this->districtModel->DistrictValidateLogin($inputData);
-                    if(count($result) > 0){
+                    if(!empty($result) && count($result) > 0){
                         session()->set([
                             'gowritedistrictadmin_Userid'		=> $result['id'],
                             'gowritedistrictadmin_Username'		=> $result['username'],
@@ -108,7 +108,7 @@ class Home extends BaseController
 						return $this->response->redirect(site_url("district/dashboard"));
 					}
 					else{
-						session()->setFlashdata('notif_error', 'invalid Username and Password');
+                        session()->setFlashdata('notif_error', 'invalid Username and Password');
 						return $this->response->redirect(site_url("school/login"));
 					}
                 }              

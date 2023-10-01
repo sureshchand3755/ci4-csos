@@ -35,7 +35,7 @@ class AdminModel extends Model
         $query = $this->db->table('notifications')
         ->select('*')
         ->where('status', 1)
-        ->get()->getRowArray();
+        ->get()->getResultArray();
         return $query;
     }
     public function getDistrictCount(){

@@ -7,7 +7,7 @@ class Admin extends BaseController
 {
     public function __construct()
     {
-        $helpers = ['form'];
+	   $this->is_session_available();
     }
     public function index()
     {
@@ -17,7 +17,7 @@ class Admin extends BaseController
         $data['template_count']=$this->adminModel->getTemplateCount();
         $data['survey_count']=$this->adminModel->getSurveysCount();
         $data['report_count']=$this->adminModel->getReportCount();
-        return $this->adminBodyTemplate('adminbody/dashboard', $data);
+		return $this->adminBodyTemplate('adminbody/dashboard', $data);
     }
 	public function admin_setting()
 	{
@@ -112,8 +112,7 @@ class Admin extends BaseController
     public function commonData($title=null){ 
         $data = array_merge($this->data, [
 			'title'         => $title,
-            'users'		=> $this->adminModel->GetAdminDetail($this->session->get('gowriteadmin_Userid'), ADMIN_DETAILS),
-            
+            'users'		=> $this->adminModel->GetAdminDetail($this->session->get('gowriteadmin_Userid'), ADMIN_DETAILS),            
             'surveys'		=> $this->adminModel->getSurveys(),
             'notifications'		=> $this->adminModel->getNotifications(),
 		]);
@@ -3362,7 +3361,6 @@ class Admin extends BaseController
 		$data['type']= $type;
 		$config['base_url'] = BASE_URL.'admin/principal_apportionment/';
 		$data['districts']= $this->db->table('go_district_admin')->select('*')->where('status',0)->get()->getResultArray();
-		
 		$this->adminBodyTemplate('adminbody/principal_apportionment',$data);
 	}
 	public function take_a_copy()
@@ -4051,6 +4049,11 @@ class Admin extends BaseController
 			$contactheaders .= "Content-Type: text/html; charset=ISO-8859-1\r\n";
 			mail($district_email, $district_subject, $contactmsg, $contactheaders);
 			mail($school_email, $school_subject, $contactschoolmsg, $contactheaders);
+		}
+	}
+	public function is_session_available() {
+		if(empty($this->session)){
+			return redirect()->to(base_url('administrator'));
 		}
 	}
 }
