@@ -68,6 +68,7 @@ class Home extends BaseController
                 $usertype =  $this->request->getVar('usertype');
                 if($usertype == 1){
 					$result = $this->schoolModel->SchoolLogin($inputData);
+					// $result = $this->schoolModel->SchoolValidateLogin($inputData);
                     if(!empty($result) && count($result) > 0){
                         session()->set([
                             'gowriteschooladmin_Userid'		=> $result['id'],

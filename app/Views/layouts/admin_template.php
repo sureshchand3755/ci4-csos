@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <title>CSOS</title>
-
+    <link rel="shortcut icon" href="<?php echo BASE_URL; ?>public/favicon.ico" />
     
     <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>assets/admin/vendors/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>assets/admin/vendors/jscrollpane/style/jquery.jscrollpane.css">

@@ -94,7 +94,9 @@ class District extends BaseController
 					$input['principal_name']	= trim($this->request->getVar('principal_name'));
 					$input['username']      	= trim($this->request->getVar('username'));
 					$input['email']				= trim($this->request->getVar('email'));
-					$input['password'] 			= password_hash(trim($this->request->getVar('password')), PASSWORD_DEFAULT);
+					if(strlen($this->request->getVar('password'))!=60){
+						$input['password']          = password_hash(trim($this->request->getVar('password')), PASSWORD_DEFAULT);
+					}
 					$input['landing_message']	= trim($this->request->getVar('landing_message'));
 					
 					if($school_id=='')
@@ -319,7 +321,7 @@ class District extends BaseController
 			else{
 				$get_attachments = $this->db->table('principal_attachments')->select('*')->where('school_id',$school_id)->where('updatetime >=',$from)->where('updatetime <=',$to)->get()->getResultArray();
 			}
-			$get_attachments = array();
+			// $get_attachments = array();
 		}
 		$output = '';
 		$i = 1;
@@ -1151,6 +1153,1312 @@ class District extends BaseController
         </tr>';
         echo $output;
 	}
+	public function add_submitted_template($template_id = '')
+	{
+		$data = $this->commonData();
+		if($template_id!='')
+		{
+		$data['title'] = 'Edit Master Template';
+		$data['selectval']=$this->commonModel->Select_Val_Id('master_templates',$template_id);
+		}
+		else
+		{
+		$data['title'] = 'Add Master Template';
+		$data['selectval']=$this->request->getPost();
+		}
+		$data['template_id']= $template_id;
+		$this->districtBodyTemplate('districtbody/add_submitted_template',$data);
+	}
+	public function save_template_content_submitted()
+	{
+		$template_id = $this->request->getVar('hidden_template_id');
+		return $this->response->redirect(site_url("district/add_submitted_template_step2/".$template_id));
+	}
+	public function add_submitted_template_step2($template_id = '')
+	{
+		$data = $this->commonData();
+		$data['title'] = 'Edit Master Template Step 2';
+		$data['addendum']=$this->commonModel->Select_Val_Id('master_templates',$template_id);
+		$data['template_id']= $template_id;
+		$this->districtBodyTemplate('districtbody/add_submitted_template_step2',$data);
+	}
+	public function add_submitted_template_step3($template_id = '')
+	{
+		$data = $this->commonData();
+		$data['title'] = 'Edit Master Template Step 2';
+		$data['forms']=$this->db->table('template_forms')->select('*')->where('template_id',$template_id)->where('sub_id',0)->get()->getResultArray();
+		$data['template_id']= $template_id;
+		$data['template'] = $this->commonModel->Select_Val_Id('master_templates',$template_id);
+		$this->districtBodyTemplate('districtbody/add_submitted_template_step3',$data);
+	}
+	public function save_template_content_step2_submitted()
+	{
+		$template_id = $this->request->getVar('hidden_template_id');
+		return $this->response->redirect(site_url("district/add_submitted_template_step3/".$template_id));
+				
+	}
+	public function save_template_content_step3_submitted()
+	{
+		$template_id = $this->request->getVar('hidden_template_id');
+		
+		// $comments = $this->input->post('comments');
+		$summary = $this->request->getVar('summary');
+		$mark = $this->request->getVar('mark');
+		$check_title = $this->db->table('template_forms')->select('*')->where('template_id',$template_id)->get()->getResultArray();
+		if(count($check_title))
+		{
+			$sub_id = 0;
+			$key_summary = 0;
+			foreach($check_title as $key => $check)
+			{
+				if($check['set_title'] == 0)
+				{
+					if($mark[$key] == "1") { 
+						$datatemplate['strong'] = "1"; 
+						$datatemplate['sufficient'] = "X"; 
+						$datatemplate['insufficient'] = "X"; 
+						$datatemplate['na'] = "X"; 
+						$datatemplate['summary'] = "";
+					}
+					elseif($mark[$key] == "2") { 
+						$datatemplate['strong'] = "X"; 
+						$datatemplate['sufficient'] = "1"; 
+						$datatemplate['insufficient'] = "X"; 
+						$datatemplate['na'] = "X"; 
+						$datatemplate['summary'] = "";
+					}
+					elseif($mark[$key] == "3") { 
+						$datatemplate['strong'] = "X"; 
+						$datatemplate['sufficient'] = "X"; 
+						$datatemplate['insufficient'] = "1"; 
+						$datatemplate['na'] = "X"; 
+						$datatemplate['summary'] = "";
+					}
+					elseif($mark[$key] == "4") { 
+						$datatemplate['strong'] = "X"; 
+						$datatemplate['sufficient'] = "X"; 
+						$datatemplate['insufficient'] = "X"; 
+						$datatemplate['na'] = "1"; 
+						$datatemplate['summary'] = "";
+					}
+					else{
+						$datatemplate['strong'] = "X";
+						$datatemplate['sufficient'] = "X";
+						$datatemplate['insufficient'] = "X";
+						$datatemplate['na'] = "X";
+						$datatemplate['summary'] = "";
+					}
+				}
+				elseif($check['set_title'] == 2)
+				{
+					$datatemplate['strong'] = $check['strong'];
+					$datatemplate['sufficient'] = $check['sufficient'];
+					$datatemplate['insufficient'] = $check['insufficient'];
+					$datatemplate['na'] = $check['na'];
+					$datatemplate['summary'] = $summary[$key_summary];
+					$key_summary++;
+				}
+				$this->commonModel->Update_Values('template_forms',$datatemplate,$check['id']);
+			}
+		}
+		$dataval['status'] = 4;
+		$dataval['school_status'] = 1;
+		$this->commonModel->Update_Values('master_templates',$dataval,$template_id);
+		$template_details = $this->commonModel->Select_Val_Id('master_templates',$template_id);
+		if(!empty($template_details))
+		{
+			$school_details = $this->db->table('go_schools')->select('*')->where('id',$template_details['school_id'])->get()->getRowArray();
+			if(!empty($school_details))
+			{
+				$district_details = $this->commonModel->Select_Val_Id('go_district_admin',$school_details['district_id']);
+				$district_email = $district_details['email'];
+				$school_email = $school_details['email'];
+				$info_admin = 'info@csos.com';
+				$admin_details = $this->db->table('go_admin')->select('*')->where('id',1)->get()->getRowArray();
+				$adminemail = $admin_details['email'];
+				$contactsubject = 'Survey Reviewed by Admin';
+				
+				$contactmsg = '<!DOCTYPE HTML>'.
+				'<head>'.
+				'<meta http-equiv="content-type" content="text/html">'.
+				'<title>Email notification</title>'.
+				'</head>'.
+				'<body>'.
+				'<div id="outer" style="width: 80%;margin: 0 auto;margin-top: 10px;">'.
+					   '<div id="inner" style="width: 78%;margin: 0 auto;background-color: #fff;font-family: Open Sans,Arial,sans-serif;font-size: 13px;font-weight: normal;line-height: 1.4em;color: #444;margin-top: 10px;">'.
+							'<p style="font-family:Arial, Helvetica, sans-serif; font-size:13px;"><b>Dear '.$school_details['principal_name'].',</b></p>'.
+							'<p style="font-family:Arial, Helvetica, sans-serif; font-size:13px;">The Charter School Oversight Survey that you have recently submitted has been successfully reviewed by Super Admin. Please login to the CSOS website to download the Survey Report.</p>'.
+							
+							'<p style="font-family:Arial, Helvetica, sans-serif; font-size:13px;">Reviewed Survey was sent on '.date('l jS \of F Y h:i:s A').'</p>'.
+							'<p style="font-family:Arial, Helvetica, sans-serif; font-size:13px;">Sincerely,<br/>CSOS Team<br/>'.
+					   '</div>'.
+				'</div>'.
+				'<div id="footer" style="width: 80%;height: 40px;margin: 0 auto;text-align: center;padding: 10px;font-family: Verdena;background-color: #ffcd44; color:#fff;">'.
+					'All rights reserved @ csos - '.date('Y').''.
+				'</div>'.
+				'</body>';
+				$contactheaders  = "From: ".$info_admin."\r\n";
+				$contactheaders .= "Reply-To: ".$info_admin."\r\n";
+				$contactheaders .= "MIME-Version: 1.0\r\n";
+				$contactheaders .= "Content-Type: text/html; charset=ISO-8859-1\r\n";
+				mail($school_email, $contactsubject, $contactmsg, $contactheaders);
+				mail($district_email, $contactsubject, $contactmsg, $contactheaders);
+			}
+		}
+		session()->setFlashdata('notif_success', 'Survey Submitted Successfully');
+		return $this->response->redirect(site_url("district/manage_submitted_surveys?school_id=".$template_details['school_id']));
+	}
+	public function print_pdf()
+	{
+		ob_end_clean();
+		$template_id = $this->request->getVar('template_id');
+		$selectval = $this->db->table('master_templates')->select('*')->where('id',$template_id)->get()->getRowArray();
+		$html = '';
+		if(!empty($selectval))
+		{
+			$html.='<h3 style="text-align:center">'.$selectval['template_name'].'</h3>';
+			$school_details = $this->commonModel->Select_Val_Id('go_schools',$selectval['school_id']);
+			$name = time();
+			
+			$unserialize = unserialize($selectval['content']);
+            $total_count = count($unserialize);
+            if(count($unserialize)){
+                foreach($unserialize as $key => $content)
+                {
+                    $html.='<h5>'.$key.'</h5>'.$content.'';
+                }
+            }
+            $html.='<div style="page-break-before: always;">
+            <table style="border-collapse: collapse;border:1px solid #dfdfdf;">
+            <tbody>';
+                $select_add = unserialize($selectval['addendum']);
+                $answers = unserialize($selectval['answers']);
+                $html.='
+                <tr style="border:1px solid #dfdfdf">
+                    <td colspan="4" style="border:1px solid #dfdfdf;height:50px;text-align:center">
+                        <h5>Addendum</h5>
+                    </td>
+                </tr>
+                <tr style="border:1px solid #dfdfdf">
+                    <td colspan="4" style="border:1px solid #dfdfdf;padding:10px">
+                        <h6>'; if(!empty($select_add)) { $html.=$select_add['addendum_title']; } else{ $html.='In compliance with the annual oversight process please provide the following information, complete the subsequent self-study survey and return to the district not later than May 1.'; } $html.='</h6>
+                    </td>
+                </tr>
+                <tr style="border:1px solid #dfdfdf">
+                    <td colspan="4" style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                        <h6>';if(!empty($select_add)) { $html.=$select_add['school_information']; } else{ $html.= 'Charter School Information'; } $html.='</h6>
+                    </td>
+                </tr>
+                <tr style="border:1px solid #dfdfdf">
+                    <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                        <h6>'; if(!empty($select_add)) { $html.= $select_add['school_name_title']; } else{ $html.= 'Charter School:'; } $html.='</h6>
+                    </td>
+                    <td colspan="3" style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                        <h6>'; if(!empty($answers)) { $html.= $answers['school_name']; } else{ $html.= ''; } $html.='</h6>
+                    </td>
+                </tr>
+                <tr style="border:1px solid #dfdfdf">
+                    <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                    	<h6>'; if(!empty($select_add)) { $html.= $select_add['location_title']; } else{ $html.= 'Charter School: Location- School Address:'; } $html.='</h6>
+                    </td>
+                    <td colspan="3" style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                    	<h6>'; if(!empty($answers)) { $html.= $answers['location']; } else{ $html.= ''; } $html.='</h6>
+                    </td>
+                </tr>
+                <tr style="border:1px solid #dfdfdf">
+                    <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                    	<h6>'; if(!empty($select_add)) { $html.= $select_add['contact_title']; } else{ $html.= 'Charter School Contact: Name'; } $html.='</h6>
+                    </td>
+                    <td colspan="3" style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                    	<h6>'; if(!empty($answers)) { $html.= $answers['contact_name']; } else{ $html.= ''; } $html.='</h6>
+                    </td>
+                </tr>
+                <tr style="border:1px solid #dfdfdf">
+                    <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                    	<h6>'; if(!empty($select_add)) { $html.= $select_add['home_address_title']; } else{ $html.= 'Home Address'; } $html.='</h6>
+                    </td>
+                    <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                    	<h6>'; if(!empty($answers)) { $html.= $answers['home_address']; } else{ $html.= ''; } $html.='</h6>
+                    </td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr style="border:1px solid #dfdfdf">
+                    <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                    	<h6>'; if(!empty($select_add)) { $html.= $select_add['email_title']; } else{ $html.= 'Email Address:'; } $html.='</h6>
+                    </td>
+                    <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                    	<h6>'; if(!empty($answers)) { $html.= $answers['email_address']; } else{ $html.= ''; } $html.='</h6>
+                    </td>
+                    <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                    	<h6>'; if(!empty($select_add)) { $html.= $select_add['phone_title']; } else{ $html.= 'Phone Number:'; } $html.='</h6>
+                    </td>
+                    <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                    	<h6>'; if(!empty($answers)) { $html.= $answers['phone']; } else{ $html.= ''; } $html.='</h6>
+                    </td>
+                </tr>
+                <tr style="border:1px solid #dfdfdf">
+                    <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                    	<h6>'; if(!empty($select_add)) { $html.= $select_add['school_phone_title']; } else{ $html.= 'School Phone Number:'; } $html.='</h6>
+                    </td>
+                    <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                    	<h6>'; if(!empty($answers)) { $html.= $answers['school_phone']; } else{ $html.= ''; } $html.='</h6>
+                    </td>
+                    <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                    	<h6>'; if(!empty($select_add)) { $html.= $select_add['fax_title']; } else{ $html.= 'Fax Number:'; } $html.='</h6>
+                    </td>
+                    <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                    	<h6>'; if(!empty($answers)) { $html.= $answers['fax']; } else{ $html.= ''; } $html.='</h6>
+                    </td>
+                </tr>
+            </tbody>
+        	</table></div>
+        	<h5>Legend</h5>
+    		<h5 class="legend_h5" style="font-size:10px">
+    			'.$selectval['legend'].'
+    		</h5>';
+        	$forms = $this->db->table('template_forms')->select('*')->where('template_id',$template_id)->where('sub_id',0)->get()->getResultArray();
+        	if(!empty($forms))
+        	{
+        		$outputval = '';
+        		foreach($forms as $key => $form)
+        		{
+        			$keycountval = $key + 1;
+        			if($key == 0)
+        			{
+        				$outputval.= '<div style="page-break-before: always;">';
+        			}
+        			else{
+        				$outputval.= '<div>';
+        			}
+        			$outputval.= '<table>';
+            			$checkbox = '<td style="width:45%;padding:10px;min-height:30px">
+                        	<h6>'.$keycountval.'. '.$form['section'].'</h6>
+                        </td>';
+        			
+                        $outputval.='
+                        	<tr style="margin-top:15px">
+                                '.$checkbox.'
+                                <td style="padding:10px;min-height:30px">
+                                	<h6 style="text-align:center">'.$form['strong'].'</h6>
+                                </td>
+                                <td style="padding:10px;min-height:30px">
+                                	<h6 style="text-align:center">'.$form['sufficient'].'</h6>
+                                	
+                                </td>
+                                <td style="padding:10px;min-height:30px">
+                                	<h6 style="text-align:center">'.$form['insufficient'].'</h6>
+                                </td>
+                                <td style="padding:10px;min-height:30px">
+                                	<h6 style="text-align:center">'.$form['na'].'</h6>
+                                </td>
+                                <td style="padding:10px;min-height:30px">
+                                	<h6 style="text-align:center">Comments</h6>
+                                	<h6 style="display:none">'.$form['comments'].'</h6>
+                                </td>
+                            </tr>';
+                        $get_sub_inputs = $this->db->table('template_forms')->select('*')->where('sub_id',$form['id'])->where('template_id',$form['template_id'])->get()->getResultArray();
+                        if(!empty($get_sub_inputs))
+                        {
+                        	foreach($get_sub_inputs as $keyvalinput => $input)
+                        	{
+                        		if($input['set_title'] == "1")
+                				{
+                					$checkbox_sub = '<td style="width:45%;padding:10px;min-height:30px">
+                                    	<h6>'.$input['section'].'</h6>
+                                    </td>';
+                				}
+                				else{
+                					if($input['priority'] == 1)
+                					{
+                						$priority_icon = '<strong class="priority_icon">√</strong>';
+                					}
+                					elseif($input['priority'] == 2)
+                					{
+                						$priority_icon = '<strong class="priority_icon">∆</strong>';
+                					}
+                					elseif($input['priority'] == 3)
+                					{
+                						$priority_icon = '<strong class="priority_icon">∑</strong>';
+                					}
+                					else{
+                						$priority_icon = '';
+                					}
+                					$checkbox_sub = '<td style="width:45%;padding:10px;min-height:30px">
+                                    	<h6>'.$priority_icon.' '.$input['section'].'</h6>
+                                    </td>';
+                				}
+                                if($input['set_title'] == "1")
+                    			{
+                        			$outputval.='
+                        			<tr style="margin-top:15px">
+                                        '.$checkbox_sub.'
+                                        <td style="padding:10px;min-height:30px;text-align:center">
+                                        	&nbsp;
+                                        </td>
+                                        <td style="padding:10px;min-height:30px;text-align:center">
+                                        	&nbsp;
+                                        </td>
+                                        <td style="padding:10px;min-height:30px;text-align:center">
+                                        	&nbsp;
+                                        </td>
+                                        <td style="padding:10px;min-height:30px;text-align:center">
+                                        	&nbsp;
+                                        </td>
+                                        <td style="padding:10px;min-height:30px;text-align:center">
+                                        	<h6 style="display:none">'.$input['comments'].'</h6>
+                                        </td>
+                                    </tr>
+                                    ';
+                                }
+                                else{
+                                	if($input['strong'] == "1") { $strong_selected = '√'; } else { $strong_selected = '-';  }
+                                	if($input['sufficient'] == "1") { $sufficient_selected = '√'; } else { $sufficient_selected = '-';  }
+                                	if($input['insufficient'] == "1") { $insufficient_selected = '√'; } else { $insufficient_selected = '-';  }
+                                	if($input['na'] == "1") { $na_selected = '√'; } else { $na_selected = '-';  }
+                                	if($input['strong'] == "1") { $mark_value = 1; }
+                                	elseif($input['sufficient'] == "1") { $mark_value = 2; }
+                                	elseif($input['insufficient'] == "1") { $mark_value = 3; }
+                                	elseif($input['na'] == "1") { $mark_value = 4; }
+                                	else{$mark_value = 0; }
+                                	if($selectval['status'] >= 3) { $disabled = 'disabled'; } else { $disabled = ''; }
+                                	$outputval.='
+                        			<tr>
+                                        '.$checkbox_sub.'
+                                        <td style="padding:10px;min-height:30px;text-align:center">
+                                        	'.$strong_selected.'
+                                        </td>
+                                        <td style="padding:10px;min-height:30px;text-align:center">
+                                        	'.$sufficient_selected.'
+                                        </td>
+                                        <td style="padding:10px;min-height:30px;text-align:center">
+                                        	'.$insufficient_selected.'
+                                        </td>
+                                        <td style="padding:10px;min-height:30px;text-align:center">
+                                        	'.$na_selected.'
+                                        </td>
+                                        <td style="padding:10px;min-height:30px;text-align:center">
+                                        	<h6>'.$input['comments'].'</h6>
+                                        </td>
+                                    </tr>';
+                                }
+                        	}
+                        }
+                        if($selectval['status'] == 4) { $outputval.='<tr>
+                        	<td colspan="6">
+	                            <h5>Summary:</h5><br/>
+	                            <h6>'.$form['summary'].'</h6>
+                            </td>
+                        </tr>'; }
+                    $outputval.='</table></div>
+                    ';
+        		}
+        		$html.=$outputval;
+        	}
+        	else{
+        		$html.='<div class="table_row">
+            		<div class="col-md-12 inside_table_div main_div">
+                        <div class="col-md-5">
+                        	<span style="font-weight:800;font-size: 16px;line-height: 3;">1.</span>
+                        	<h6>1. Education Program</h6>
+                        </div>
+                        <div class="col-md-1">
+                        	<h6>Strong</h6>
+                        </div>
+                        <div class="col-md-1">
+                        	<h6>Sufficient</h6>
+                        </div>
+                        <div class="col-md-1">
+                        	<h6>Insufficient</h6>
+                        </div>
+                        <div class="col-md-1">
+                        	<h6>N/A</h6>
+                        </div>
+                    </div>
+                </div>';
+        	}
+		}
+		$upload_dir = 'papers/district/';
+		if(!file_exists($upload_dir))
+		{
+			mkdir($upload_dir);
+		}
+		$mpdf = new \Mpdf\Mpdf();
+		$mpdf->SetDisplayMode('fullpage');
+		$mpdf->WriteHTML($html);
+		$this->response->setHeader('Content-Type', 'application/pdf');
+		$mpdf->Output("papers/district/".$name.".pdf","F");
+		echo $name.".pdf";
+	}
+	public function print_pdf_sections()
+	{
+		ob_end_clean();
+		$template_id = $this->request->getVar('template_id');
+		$sections = $this->request->getVar('sections');
+		$section_array = explode("||",$sections);
+		$selectval = $this->db->table('master_templates')->select('*')->where('id',$template_id)->get()->getRowArray();
+		$html = '';
+		if(!empty($selectval))
+		{
+			$html.='<h3 style="text-align:center">'.$selectval['template_name'].'</h3>';
+			$school_details = $this->commonModel->Select_Val_Id('go_schools',$selectval['school_id']);
+			$name = time();
+			
+			$unserialize = unserialize($selectval['content']);
+            $total_count = count($unserialize);
+            if(count($unserialize)){
+                foreach($unserialize as $key => $content)
+                {
+                	if(in_array($key, $section_array))
+                	{
+                		$html.='<h5>'.$key.'</h5>'.$content.'';
+                	}
+                }
+            }
+            if(in_array('addendum', $section_array))
+            {
+            	$html.='<div style="page-break-before: always;">
+                <table style="border-collapse: collapse;border:1px solid #dfdfdf;">
+                <tbody>';
+                    $select_add = unserialize($selectval['addendum']);
+                    $answers = unserialize($selectval['answers']);
+                    $html.='
+                    <tr style="border:1px solid #dfdfdf">
+                        <td colspan="4" style="border:1px solid #dfdfdf;height:50px;text-align:center">
+                            <h5>Addendum</h5>
+                        </td>
+                    </tr>
+                    <tr style="border:1px solid #dfdfdf">
+                        <td colspan="4" style="border:1px solid #dfdfdf;padding:10px">
+                            <h6>'; if(!empty($select_add)) { $html.=$select_add['addendum_title']; } else{ $html.='In compliance with the annual oversight process please provide the following information, complete the subsequent self-study survey and return to the district not later than May 1.'; } $html.='</h6>
+                        </td>
+                    </tr>
+                    <tr style="border:1px solid #dfdfdf">
+                        <td colspan="4" style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                            <h6>';if(!empty($select_add)) { $html.=$select_add['school_information']; } else{ $html.= 'Charter School Information'; } $html.='</h6>
+                        </td>
+                    </tr>
+                    <tr style="border:1px solid #dfdfdf">
+                        <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                            <h6>'; if(!empty($select_add)) { $html.= $select_add['school_name_title']; } else{ $html.= 'Charter School:'; } $html.='</h6>
+                        </td>
+                        <td colspan="3" style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                            <h6>'; if(!empty($answers)) { $html.= $answers['school_name']; } else{ $html.= ''; } $html.='</h6>
+                        </td>
+                    </tr>
+                    <tr style="border:1px solid #dfdfdf">
+                        <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                        	<h6>'; if(!empty($select_add)) { $html.= $select_add['location_title']; } else{ $html.= 'Charter School: Location- School Address:'; } $html.='</h6>
+                        </td>
+                        <td colspan="3" style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                        	<h6>'; if(!empty($answers)) { $html.= $answers['location']; } else{ $html.= ''; } $html.='</h6>
+                        </td>
+                    </tr>
+                    <tr style="border:1px solid #dfdfdf">
+                        <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                        	<h6>'; if(!empty($select_add)) { $html.= $select_add['contact_title']; } else{ $html.= 'Charter School Contact: Name'; } $html.='</h6>
+                        </td>
+                        <td colspan="3" style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                        	<h6>'; if(!empty($answers)) { $html.= $answers['contact_name']; } else{ $html.= ''; } $html.='</h6>
+                        </td>
+                    </tr>
+                    <tr style="border:1px solid #dfdfdf">
+                        <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                        	<h6>'; if(!empty($select_add)) { $html.= $select_add['home_address_title']; } else{ $html.= 'Home Address'; } $html.='</h6>
+                        </td>
+                        <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                        	<h6>'; if(!empty($answers)) { $html.= $answers['home_address']; } else{ $html.= ''; } $html.='</h6>
+                        </td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr style="border:1px solid #dfdfdf">
+                        <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                        	<h6>'; if(!empty($select_add)) { $html.= $select_add['email_title']; } else{ $html.= 'Email Address:'; } $html.='</h6>
+                        </td>
+                        <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                        	<h6>'; if(!empty($answers)) { $html.= $answers['email_address']; } else{ $html.= ''; } $html.='</h6>
+                        </td>
+                        <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                        	<h6>'; if(!empty($select_add)) { $html.= $select_add['phone_title']; } else{ $html.= 'Phone Number:'; } $html.='</h6>
+                        </td>
+                        <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                        	<h6>'; if(!empty($answers)) { $html.= $answers['phone']; } else{ $html.= ''; } $html.='</h6>
+                        </td>
+                    </tr>
+                    <tr style="border:1px solid #dfdfdf">
+                        <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                        	<h6>'; if(!empty($select_add)) { $html.= $select_add['school_phone_title']; } else{ $html.= 'School Phone Number:'; } $html.='</h6>
+                        </td>
+                        <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                        	<h6>'; if(!empty($answers)) { $html.= $answers['school_phone']; } else{ $html.= ''; } $html.='</h6>
+                        </td>
+                        <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                        	<h6>'; if(!empty($select_add)) { $html.= $select_add['fax_title']; } else{ $html.= 'Fax Number:'; } $html.='</h6>
+                        </td>
+                        <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                        	<h6>'; if(!empty($answers)) { $html.= $answers['fax']; } else{ $html.= ''; } $html.='</h6>
+                        </td>
+                    </tr>
+                </tbody>
+            	</table></div>';
+            }
+            
+        	$forms = $this->db->table('template_forms')->select('*')->where('template_id',$template_id)->where('sub_id',0)->get()->getResultArray();
+        	if(!empty($forms))
+        	{
+        		$outputval = '<h5>Legend</h5>
+        		<h5 class="legend_h5" style="font-size:10px">
+        			'.$selectval['legend'].'
+        		</h5>';
+        		foreach($forms as $key => $form)
+        		{
+        			if(in_array($form['section'], $section_array))
+            		{
+            			$keycountval = $key + 1;
+            			$outputval.= '<div style="page-break-before: always;">
+        				<table>';
+                			$checkbox = '<td style="width:45%;padding:10px;min-height:30px">
+                            	<h6>'.$keycountval.'. '.$form['section'].'</h6>
+                            </td>';
+            			
+                            $outputval.='
+                            	<tr style="margin-top:15px">
+                                    '.$checkbox.'
+                                    <td style="padding:10px;min-height:30px">
+                                    	<h6 style="text-align:center">'.$form['strong'].'</h6>
+                                    </td>
+                                    <td style="padding:10px;min-height:30px">
+                                    	<h6 style="text-align:center">'.$form['sufficient'].'</h6>
+                                    	
+                                    </td>
+                                    <td style="padding:10px;min-height:30px">
+                                    	<h6 style="text-align:center">'.$form['insufficient'].'</h6>
+                                    </td>
+                                    <td style="padding:10px;min-height:30px">
+                                    	<h6 style="text-align:center">'.$form['na'].'</h6>
+                                    </td>
+                                    <td style="padding:10px;min-height:30px">
+                                    	<h6 style="text-align:center">Comments</h6>
+                                    	<h6 style="display:none">'.$form['comments'].'</h6>
+                                    </td>
+                                </tr>';
+                            $get_sub_inputs = $this->db->table('template_forms')->select('*')->where('sub_id',$form['id'])->where('template_id',$form['template_id'])->get()->getResultArray();
+                            if(!empty($get_sub_inputs))
+                            {
+                            	foreach($get_sub_inputs as $keyvalinput => $input)
+                            	{
+                            		if($input['set_title'] == "1")
+                    				{
+                    					$checkbox_sub = '<td style="width:45%;padding:10px;min-height:30px">
+                                        	<h6>'.$input['section'].'</h6>
+                                        </td>';
+                    				}
+                    				else{
+                    					if($input['priority'] == 1)
+                    					{
+                    						$priority_icon = '<strong class="priority_icon">√</strong>';
+                    					}
+                    					elseif($input['priority'] == 2)
+                    					{
+                    						$priority_icon = '<strong class="priority_icon">∆</strong>';
+                    					}
+                    					elseif($input['priority'] == 3)
+                    					{
+                    						$priority_icon = '<strong class="priority_icon">∑</strong>';
+                    					}
+                    					else{
+                    						$priority_icon = '';
+                    					}
+                    					$checkbox_sub = '<td style="width:45%;padding:10px;min-height:30px">
+                                        	<h6>'.$priority_icon.' '.$input['section'].'</h6>
+                                        </td>';
+                    				}
+                                    if($input['set_title'] == "1")
+                        			{
+                            			$outputval.='
+                            			<tr style="margin-top:15px">
+	                                        '.$checkbox_sub.'
+	                                        <td style="padding:10px;min-height:30px;text-align:center">
+	                                        	&nbsp;
+	                                        </td>
+	                                        <td style="padding:10px;min-height:30px;text-align:center">
+	                                        	&nbsp;
+	                                        </td>
+	                                        <td style="padding:10px;min-height:30px;text-align:center">
+	                                        	&nbsp;
+	                                        </td>
+	                                        <td style="padding:10px;min-height:30px;text-align:center">
+	                                        	&nbsp;
+	                                        </td>
+	                                        <td style="padding:10px;min-height:30px;text-align:center">
+	                                        	<h6 style="display:none">'.$input['comments'].'</h6>
+	                                        </td>
+	                                    </tr>
+	                                    ';
+	                                }
+	                                else{
+	                                	if($input['strong'] == "1") { $strong_selected = '√'; } else { $strong_selected = '-';  }
+	                                	if($input['sufficient'] == "1") { $sufficient_selected = '√'; } else { $sufficient_selected = '-';  }
+	                                	if($input['insufficient'] == "1") { $insufficient_selected = '√'; } else { $insufficient_selected = '-';  }
+	                                	if($input['na'] == "1") { $na_selected = '√'; } else { $na_selected = '-';  }
+	                                	if($input['strong'] == "1") { $mark_value = 1; }
+	                                	elseif($input['sufficient'] == "1") { $mark_value = 2; }
+	                                	elseif($input['insufficient'] == "1") { $mark_value = 3; }
+	                                	elseif($input['na'] == "1") { $mark_value = 4; }
+	                                	else{$mark_value = 0; }
+	                                	if($selectval['status'] >= 3) { $disabled = 'disabled'; } else { $disabled = ''; }
+	                                	$outputval.='
+                            			<tr>
+	                                        '.$checkbox_sub.'
+	                                        <td style="padding:10px;min-height:30px;text-align:center">
+	                                        	'.$strong_selected.'
+	                                        </td>
+	                                        <td style="padding:10px;min-height:30px;text-align:center">
+	                                        	'.$sufficient_selected.'
+	                                        </td>
+	                                        <td style="padding:10px;min-height:30px;text-align:center">
+	                                        	'.$insufficient_selected.'
+	                                        </td>
+	                                        <td style="padding:10px;min-height:30px;text-align:center">
+	                                        	'.$na_selected.'
+	                                        </td>
+	                                        <td style="padding:10px;min-height:30px;text-align:center">
+	                                        	<h6>'.$input['comments'].'</h6>
+	                                        </td>
+	                                    </tr>';
+	                                }
+                            	}
+                            }
+                        if($selectval['status'] == 4) { $outputval.='<tr>
+                    	<td colspan="6">
+                            <h5>Summary:</h5><br/>
+                            <h6>'.$form['summary'].'</h6>
+                        </td>
+                    </tr>'; }
+                    $outputval.='</table></div>
+                        ';
+            		}
+        		}
+        		$html.=$outputval;
+        	}
+        	else{
+        		$html.='<div class="table_row">
+            		<div class="col-md-12 inside_table_div main_div">
+                        <div class="col-md-5">
+                        	<span style="font-weight:800;font-size: 16px;line-height: 3;">1.</span>
+                        	<h6>1. Education Program</h6>
+                        </div>
+                        <div class="col-md-1">
+                        	<h6>Strong</h6>
+                        </div>
+                        <div class="col-md-1">
+                        	<h6>Sufficient</h6>
+                        </div>
+                        <div class="col-md-1">
+                        	<h6>Insufficient</h6>
+                        </div>
+                        <div class="col-md-1">
+                        	<h6>N/A</h6>
+                        </div>
+                    </div>
+                </div>';
+        	}
+		}
+		$upload_dir = 'papers/district/';
+		if(!file_exists($upload_dir))
+		{
+			mkdir($upload_dir);
+		}
+		$mpdf = new \Mpdf\Mpdf();
+		$mpdf->SetDisplayMode('fullpage');
+		$mpdf->WriteHTML($html);
+		$this->response->setHeader('Content-Type', 'application/pdf');
+		$mpdf->Output("papers/district/".$name.".pdf","F");
+		echo $name.".pdf";
+	}
+	public function download_pdf_sections()
+	{
+		$template_id = $this->request->getVar('template_id');
+		$sections = $this->request->getVar('sections');
+		$section_array = explode("||",$sections);
+		$selectval = $this->db->table('master_templates')->select('*')->where('id',$template_id)->get()->getRowArray();
+		$html = '';
+		if(!empty($selectval))
+		{
+			$html.='<h3 style="text-align:center">'.$selectval['template_name'].'</h3>';
+			$school_details = $this->commonModel->Select_Val_Id('go_schools',$selectval['school_id']);
+			$name = trim($school_details['school_name']).'_'.trim($selectval['template_name']);
+			$name = str_replace("/","-",$name);
+			$name = str_replace("/","-",$name);
+			$name = str_replace("/","-",$name);
+			$name = str_replace("/","-",$name);
+			$name = str_replace("/","-",$name);
+			$name = str_replace("/","-",$name);
+			$name = str_replace("/","-",$name);
+			
+			
+			$unserialize = unserialize($selectval['content']);
+            $total_count = count($unserialize);
+            if(count($unserialize)){
+                foreach($unserialize as $key => $content)
+                {
+                	if(in_array($key, $section_array))
+                	{
+                		$html.='<h5>'.$key.'</h5>'.$content.'';
+                	}
+                }
+            }
+            if(in_array('addendum', $section_array))
+            {
+            	$html.='<div style="page-break-before: always;">
+                <table style="border-collapse: collapse;border:1px solid #dfdfdf;">
+                <tbody>';
+                    $select_add = unserialize($selectval['addendum']);
+                    $answers = unserialize($selectval['answers']);
+                    $html.='
+                    <tr style="border:1px solid #dfdfdf">
+                        <td colspan="4" style="border:1px solid #dfdfdf;height:50px;text-align:center">
+                            <h5>Addendum</h5>
+                        </td>
+                    </tr>
+                    <tr style="border:1px solid #dfdfdf">
+                        <td colspan="4" style="border:1px solid #dfdfdf;padding:10px">
+                            <h6>'; if(!empty($select_add)) { $html.=$select_add['addendum_title']; } else{ $html.='In compliance with the annual oversight process please provide the following information, complete the subsequent self-study survey and return to the district not later than May 1.'; } $html.='</h6>
+                        </td>
+                    </tr>
+                    <tr style="border:1px solid #dfdfdf">
+                        <td colspan="4" style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                            <h6>';if(!empty($select_add)) { $html.=$select_add['school_information']; } else{ $html.= 'Charter School Information'; } $html.='</h6>
+                        </td>
+                    </tr>
+                    <tr style="border:1px solid #dfdfdf">
+                        <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                            <h6>'; if(!empty($select_add)) { $html.= $select_add['school_name_title']; } else{ $html.= 'Charter School:'; } $html.='</h6>
+                        </td>
+                        <td colspan="3" style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                            <h6>'; if(!empty($answers)) { $html.= $answers['school_name']; } else{ $html.= ''; } $html.='</h6>
+                        </td>
+                    </tr>
+                    <tr style="border:1px solid #dfdfdf">
+                        <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                        	<h6>'; if(!empty($select_add)) { $html.= $select_add['location_title']; } else{ $html.= 'Charter School: Location- School Address:'; } $html.='</h6>
+                        </td>
+                        <td colspan="3" style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                        	<h6>'; if(!empty($answers)) { $html.= $answers['location']; } else{ $html.= ''; } $html.='</h6>
+                        </td>
+                    </tr>
+                    <tr style="border:1px solid #dfdfdf">
+                        <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                        	<h6>'; if(!empty($select_add)) { $html.= $select_add['contact_title']; } else{ $html.= 'Charter School Contact: Name'; } $html.='</h6>
+                        </td>
+                        <td colspan="3" style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                        	<h6>'; if(!empty($answers)) { $html.= $answers['contact_name']; } else{ $html.= ''; } $html.='</h6>
+                        </td>
+                    </tr>
+                    <tr style="border:1px solid #dfdfdf">
+                        <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                        	<h6>'; if(!empty($select_add)) { $html.= $select_add['home_address_title']; } else{ $html.= 'Home Address'; } $html.='</h6>
+                        </td>
+                        <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                        	<h6>'; if(!empty($answers)) { $html.= $answers['home_address']; } else{ $html.= ''; } $html.='</h6>
+                        </td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr style="border:1px solid #dfdfdf">
+                        <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                        	<h6>'; if(!empty($select_add)) { $html.= $select_add['email_title']; } else{ $html.= 'Email Address:'; } $html.='</h6>
+                        </td>
+                        <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                        	<h6>'; if(!empty($answers)) { $html.= $answers['email_address']; } else{ $html.= ''; } $html.='</h6>
+                        </td>
+                        <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                        	<h6>'; if(!empty($select_add)) { $html.= $select_add['phone_title']; } else{ $html.= 'Phone Number:'; } $html.='</h6>
+                        </td>
+                        <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                        	<h6>'; if(!empty($answers)) { $html.= $answers['phone']; } else{ $html.= ''; } $html.='</h6>
+                        </td>
+                    </tr>
+                    <tr style="border:1px solid #dfdfdf">
+                        <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                        	<h6>'; if(!empty($select_add)) { $html.= $select_add['school_phone_title']; } else{ $html.= 'School Phone Number:'; } $html.='</h6>
+                        </td>
+                        <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                        	<h6>'; if(!empty($answers)) { $html.= $answers['school_phone']; } else{ $html.= ''; } $html.='</h6>
+                        </td>
+                        <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                        	<h6>'; if(!empty($select_add)) { $html.= $select_add['fax_title']; } else{ $html.= 'Fax Number:'; } $html.='</h6>
+                        </td>
+                        <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                        	<h6>'; if(!empty($answers)) { $html.= $answers['fax']; } else{ $html.= ''; } $html.='</h6>
+                        </td>
+                    </tr>
+                </tbody>
+            	</table></div>';
+            }
+            
+        	$forms = $this->db->table('template_forms')->select('*')->where('template_id',$template_id)->where('sub_id',0)->get()->getResultArray();
+        	if(!empty($forms))
+        	{
+        		$outputval = '<h5>Legend</h5>
+        		<h5 class="legend_h5" style="font-size:10px">
+        			'.$selectval['legend'].'
+        		</h5>';
+        		foreach($forms as $key => $form)
+        		{
+        			if(in_array($form['section'], $section_array))
+            		{
+            			$keycountval = $key + 1;
+            			$outputval.= '<div style="page-break-before: always;">
+        				<table>';
+                			$checkbox = '<td style="width:45%;padding:10px;min-height:30px">
+                            	<h6>'.$keycountval.'. '.$form['section'].'</h6>
+                            </td>';
+            			
+                            $outputval.='
+                            	<tr style="margin-top:15px">
+                                    '.$checkbox.'
+                                    <td style="padding:10px;min-height:30px">
+                                    	<h6 style="text-align:center">'.$form['strong'].'</h6>
+                                    </td>
+                                    <td style="padding:10px;min-height:30px">
+                                    	<h6 style="text-align:center">'.$form['sufficient'].'</h6>
+                                    	
+                                    </td>
+                                    <td style="padding:10px;min-height:30px">
+                                    	<h6 style="text-align:center">'.$form['insufficient'].'</h6>
+                                    </td>
+                                    <td style="padding:10px;min-height:30px">
+                                    	<h6 style="text-align:center">'.$form['na'].'</h6>
+                                    </td>
+                                    <td style="padding:10px;min-height:30px">
+                                    	<h6 style="text-align:center">Comments</h6>
+                                    	<h6 style="display:none">'.$form['comments'].'</h6>
+                                    </td>
+                                </tr>';
+                            $get_sub_inputs = $this->db->table('template_forms')->select('*')->where('sub_id',$form['id'])->where('template_id',$form['template_id'])->get()->getResultArray();
+                            if(!empty($get_sub_inputs))
+                            {
+                            	foreach($get_sub_inputs as $keyvalinput => $input)
+                            	{
+                            		if($input['set_title'] == "1")
+                    				{
+                    					$checkbox_sub = '<td style="width:45%;padding:10px;min-height:30px">
+                                        	<h6>'.$input['section'].'</h6>
+                                        </td>';
+                    				}
+                    				else{
+                    					if($input['priority'] == 1)
+                    					{
+                    						$priority_icon = '<strong class="priority_icon">√</strong>';
+                    					}
+                    					elseif($input['priority'] == 2)
+                    					{
+                    						$priority_icon = '<strong class="priority_icon">∆</strong>';
+                    					}
+                    					elseif($input['priority'] == 3)
+                    					{
+                    						$priority_icon = '<strong class="priority_icon">∑</strong>';
+                    					}
+                    					else{
+                    						$priority_icon = '';
+                    					}
+                    					$checkbox_sub = '<td style="width:45%;padding:10px;min-height:30px">
+                                        	<h6>'.$priority_icon.' '.$input['section'].'</h6>
+                                        </td>';
+                    				}
+                                    if($input['set_title'] == "1")
+                        			{
+                            			$outputval.='
+                            			<tr style="margin-top:15px">
+	                                        '.$checkbox_sub.'
+	                                        <td style="padding:10px;min-height:30px;text-align:center">
+	                                        	&nbsp;
+	                                        </td>
+	                                        <td style="padding:10px;min-height:30px;text-align:center">
+	                                        	&nbsp;
+	                                        </td>
+	                                        <td style="padding:10px;min-height:30px;text-align:center">
+	                                        	&nbsp;
+	                                        </td>
+	                                        <td style="padding:10px;min-height:30px;text-align:center">
+	                                        	&nbsp;
+	                                        </td>
+	                                        <td style="padding:10px;min-height:30px;text-align:center">
+	                                        	<h6 style="display:none">'.$input['comments'].'</h6>
+	                                        </td>
+	                                    </tr>
+	                                    ';
+	                                }
+	                                else{
+	                                	if($input['strong'] == "1") { $strong_selected = '√'; } else { $strong_selected = '-';  }
+	                                	if($input['sufficient'] == "1") { $sufficient_selected = '√'; } else { $sufficient_selected = '-';  }
+	                                	if($input['insufficient'] == "1") { $insufficient_selected = '√'; } else { $insufficient_selected = '-';  }
+	                                	if($input['na'] == "1") { $na_selected = '√'; } else { $na_selected = '-';  }
+	                                	if($input['strong'] == "1") { $mark_value = 1; }
+	                                	elseif($input['sufficient'] == "1") { $mark_value = 2; }
+	                                	elseif($input['insufficient'] == "1") { $mark_value = 3; }
+	                                	elseif($input['na'] == "1") { $mark_value = 4; }
+	                                	else{$mark_value = 0; }
+	                                	if($selectval['status'] >= 3) { $disabled = 'disabled'; } else { $disabled = ''; }
+	                                	$outputval.='
+                            			<tr>
+	                                        '.$checkbox_sub.'
+	                                        <td style="padding:10px;min-height:30px;text-align:center">
+	                                        	'.$strong_selected.'
+	                                        </td>
+	                                        <td style="padding:10px;min-height:30px;text-align:center">
+	                                        	'.$sufficient_selected.'
+	                                        </td>
+	                                        <td style="padding:10px;min-height:30px;text-align:center">
+	                                        	'.$insufficient_selected.'
+	                                        </td>
+	                                        <td style="padding:10px;min-height:30px;text-align:center">
+	                                        	'.$na_selected.'
+	                                        </td>
+	                                        <td style="padding:10px;min-height:30px;text-align:center">
+	                                        	<h6>'.$input['comments'].'</h6>
+	                                        </td>
+	                                    </tr>';
+	                                }
+                            	}
+                            }
+                        if($selectval['status'] == 4) { $outputval.='<tr>
+                        	<td colspan="6">
+	                            <h5>Summary:</h5><br/>
+	                            <h6>'.$form['summary'].'</h6>
+                            </td>
+                        </tr>'; }
+                        $outputval.='</table></div>
+                        ';
+            		}
+        		}
+        		$html.=$outputval;
+        	}
+        	else{
+        		$html.='<div class="table_row">
+            		<div class="col-md-12 inside_table_div main_div">
+                        <div class="col-md-5">
+                        	<span style="font-weight:800;font-size: 16px;line-height: 3;">1.</span>
+                        	<h6>1. Education Program</h6>
+                        </div>
+                        <div class="col-md-1">
+                        	<h6>Strong</h6>
+                        </div>
+                        <div class="col-md-1">
+                        	<h6>Sufficient</h6>
+                        </div>
+                        <div class="col-md-1">
+                        	<h6>Insufficient</h6>
+                        </div>
+                        <div class="col-md-1">
+                        	<h6>N/A</h6>
+                        </div>
+                    </div>
+                </div>';
+        	}
+		}
+		$upload_dir = 'papers/district/';
+		if(!file_exists($upload_dir))
+		{
+			mkdir($upload_dir);
+		}
+		$mpdf = new \Mpdf\Mpdf();
+		$mpdf->SetDisplayMode('fullpage');
+		$mpdf->WriteHTML($html);
+		$this->response->setHeader('Content-Type', 'application/pdf');
+		$mpdf->Output("papers/district/".$name.".pdf","F");
+		echo $name.".pdf";
+	}
+	public function download_pdf()
+	{
+		$template_id = $this->request->getVar('template_id');
+		$selectval = $this->db->table('master_templates')->select('*')->where('id',$template_id)->get()->getRowArray();
+		$html = '';
+		if(!empty($selectval))
+		{
+			$html.='<h3 style="text-align:center">'.$selectval['template_name'].'</h3>';
+			$school_details = $this->commonModel->Select_Val_Id('go_schools',$selectval['school_id']);
+			$name = trim($school_details['school_name']).'_'.trim($selectval['template_name']);
+			$name = str_replace("/","-",$name);
+			$name = str_replace("/","-",$name);
+			$name = str_replace("/","-",$name);
+			$name = str_replace("/","-",$name);
+			$name = str_replace("/","-",$name);
+			$name = str_replace("/","-",$name);
+			$name = str_replace("/","-",$name);
+			
+			$unserialize = unserialize($selectval['content']);
+            $total_count = count($unserialize);
+            if(count($unserialize)){
+                foreach($unserialize as $key => $content)
+                {
+                    $html.='<h5>'.$key.'</h5>'.$content.'';
+                }
+            }
+            $html.='<div style="page-break-before: always;">
+            <table style="border-collapse: collapse;border:1px solid #dfdfdf;">
+            <tbody>';
+                $select_add = unserialize($selectval['addendum']);
+                $answers = unserialize($selectval['answers']);
+                $html.='
+                <tr style="border:1px solid #dfdfdf">
+                    <td colspan="4" style="border:1px solid #dfdfdf;height:50px;text-align:center">
+                        <h5>Addendum</h5>
+                    </td>
+                </tr>
+                <tr style="border:1px solid #dfdfdf">
+                    <td colspan="4" style="border:1px solid #dfdfdf;padding:10px">
+                        <h6>'; if(!empty($select_add)) { $html.=$select_add['addendum_title']; } else{ $html.='In compliance with the annual oversight process please provide the following information, complete the subsequent self-study survey and return to the district not later than May 1.'; } $html.='</h6>
+                    </td>
+                </tr>
+                <tr style="border:1px solid #dfdfdf">
+                    <td colspan="4" style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                        <h6>';if(!empty($select_add)) { $html.=$select_add['school_information']; } else{ $html.= 'Charter School Information'; } $html.='</h6>
+                    </td>
+                </tr>
+                <tr style="border:1px solid #dfdfdf">
+                    <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                        <h6>'; if(!empty($select_add)) { $html.= $select_add['school_name_title']; } else{ $html.= 'Charter School:'; } $html.='</h6>
+                    </td>
+                    <td colspan="3" style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                        <h6>'; if(!empty($answers)) { $html.= $answers['school_name']; } else{ $html.= ''; } $html.='</h6>
+                    </td>
+                </tr>
+                <tr style="border:1px solid #dfdfdf">
+                    <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                    	<h6>'; if(!empty($select_add)) { $html.= $select_add['location_title']; } else{ $html.= 'Charter School: Location- School Address:'; } $html.='</h6>
+                    </td>
+                    <td colspan="3" style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                    	<h6>'; if(!empty($answers)) { $html.= $answers['location']; } else{ $html.= ''; } $html.='</h6>
+                    </td>
+                </tr>
+                <tr style="border:1px solid #dfdfdf">
+                    <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                    	<h6>'; if(!empty($select_add)) { $html.= $select_add['contact_title']; } else{ $html.= 'Charter School Contact: Name'; } $html.='</h6>
+                    </td>
+                    <td colspan="3" style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                    	<h6>'; if(!empty($answers)) { $html.= $answers['contact_name']; } else{ $html.= ''; } $html.='</h6>
+                    </td>
+                </tr>
+                <tr style="border:1px solid #dfdfdf">
+                    <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                    	<h6>'; if(!empty($select_add)) { $html.= $select_add['home_address_title']; } else{ $html.= 'Home Address'; } $html.='</h6>
+                    </td>
+                    <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                    	<h6>'; if(!empty($answers)) { $html.= $answers['home_address']; } else{ $html.= ''; } $html.='</h6>
+                    </td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr style="border:1px solid #dfdfdf">
+                    <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                    	<h6>'; if(!empty($select_add)) { $html.= $select_add['email_title']; } else{ $html.= 'Email Address:'; } $html.='</h6>
+                    </td>
+                    <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                    	<h6>'; if(!empty($answers)) { $html.= $answers['email_address']; } else{ $html.= ''; } $html.='</h6>
+                    </td>
+                    <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                    	<h6>'; if(!empty($select_add)) { $html.= $select_add['phone_title']; } else{ $html.= 'Phone Number:'; } $html.='</h6>
+                    </td>
+                    <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                    	<h6>'; if(!empty($answers)) { $html.= $answers['phone']; } else{ $html.= ''; } $html.='</h6>
+                    </td>
+                </tr>
+                <tr style="border:1px solid #dfdfdf">
+                    <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                    	<h6>'; if(!empty($select_add)) { $html.= $select_add['school_phone_title']; } else{ $html.= 'School Phone Number:'; } $html.='</h6>
+                    </td>
+                    <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                    	<h6>'; if(!empty($answers)) { $html.= $answers['school_phone']; } else{ $html.= ''; } $html.='</h6>
+                    </td>
+                    <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                    	<h6>'; if(!empty($select_add)) { $html.= $select_add['fax_title']; } else{ $html.= 'Fax Number:'; } $html.='</h6>
+                    </td>
+                    <td style="border:1px solid #dfdfdf;padding:10px;min-height:30px;">
+                    	<h6>'; if(!empty($answers)) { $html.= $answers['fax']; } else{ $html.= ''; } $html.='</h6>
+                    </td>
+                </tr>
+            </tbody>
+        	</table></div>
+        	<h5>Legend</h5>
+    		<h5 class="legend_h5" style="font-size:10px">
+    			'.$selectval['legend'].'
+    		</h5>';
+        	$forms = $this->db->table('template_forms')->select('*')->where('template_id',$template_id)->where('sub_id',0)->get()->getResultArray();
+        	if(!empty($forms))
+        	{
+        		$outputval = '';
+        		foreach($forms as $key => $form)
+        		{
+        			$keycountval = $key + 1;
+        			if($key == 0)
+        			{
+        				$outputval.= '<div style="page-break-before: always;">';
+        			}
+        			else{
+        				$outputval.= '<div>';
+        			}
+        			$outputval.= '<table>';
+            			$checkbox = '<td style="width:45%;padding:10px;min-height:30px">
+                        	<h6>'.$keycountval.'. '.$form['section'].'</h6>
+                        </td>';
+        			
+                        $outputval.='
+                        	<tr style="margin-top:15px">
+                                '.$checkbox.'
+                                <td style="padding:10px;min-height:30px">
+                                	<h6 style="text-align:center">'.$form['strong'].'</h6>
+                                </td>
+                                <td style="padding:10px;min-height:30px">
+                                	<h6 style="text-align:center">'.$form['sufficient'].'</h6>
+                                	
+                                </td>
+                                <td style="padding:10px;min-height:30px">
+                                	<h6 style="text-align:center">'.$form['insufficient'].'</h6>
+                                </td>
+                                <td style="padding:10px;min-height:30px">
+                                	<h6 style="text-align:center">'.$form['na'].'</h6>
+                                </td>
+                                <td style="padding:10px;min-height:30px">
+                                	<h6 style="text-align:center">Comments</h6>
+                                	<h6 style="display:none">'.$form['comments'].'</h6>
+                                </td>
+                            </tr>';
+                        $get_sub_inputs = $this->db->table('template_forms')->select('*')->where('sub_id',$form['id'])->where('template_id',$form['template_id'])->get()->getResultArray();
+                        if(!empty($get_sub_inputs))
+                        {
+                        	foreach($get_sub_inputs as $keyvalinput => $input)
+                        	{
+                        		if($input['set_title'] == "1")
+                				{
+                					$checkbox_sub = '<td style="width:45%;padding:10px;min-height:30px">
+                                    	<h6>'.$input['section'].'</h6>
+                                    </td>';
+                				}
+                				else{
+                					if($input['priority'] == 1)
+                					{
+                						$priority_icon = '<strong class="priority_icon">√</strong>';
+                					}
+                					elseif($input['priority'] == 2)
+                					{
+                						$priority_icon = '<strong class="priority_icon">∆</strong>';
+                					}
+                					elseif($input['priority'] == 3)
+                					{
+                						$priority_icon = '<strong class="priority_icon">∑</strong>';
+                					}
+                					else{
+                						$priority_icon = '';
+                					}
+                					$checkbox_sub = '<td style="width:45%;padding:10px;min-height:30px">
+                                    	<h6>'.$priority_icon.' '.$input['section'].'</h6>
+                                    </td>';
+                				}
+                                if($input['set_title'] == "1")
+                    			{
+                        			$outputval.='
+                        			<tr style="margin-top:15px">
+                                        '.$checkbox_sub.'
+                                        <td style="padding:10px;min-height:30px;text-align:center">
+                                        	&nbsp;
+                                        </td>
+                                        <td style="padding:10px;min-height:30px;text-align:center">
+                                        	&nbsp;
+                                        </td>
+                                        <td style="padding:10px;min-height:30px;text-align:center">
+                                        	&nbsp;
+                                        </td>
+                                        <td style="padding:10px;min-height:30px;text-align:center">
+                                        	&nbsp;
+                                        </td>
+                                        <td style="padding:10px;min-height:30px;text-align:center">
+                                        	<h6 style="display:none">'.$input['comments'].'</h6>
+                                        </td>
+                                    </tr>
+                                    ';
+                                }
+                                else{
+                                	if($input['strong'] == "1") { $strong_selected = '√'; } else { $strong_selected = '-';  }
+                                	if($input['sufficient'] == "1") { $sufficient_selected = '√'; } else { $sufficient_selected = '-';  }
+                                	if($input['insufficient'] == "1") { $insufficient_selected = '√'; } else { $insufficient_selected = '-';  }
+                                	if($input['na'] == "1") { $na_selected = '√'; } else { $na_selected = '-';  }
+                                	if($input['strong'] == "1") { $mark_value = 1; }
+                                	elseif($input['sufficient'] == "1") { $mark_value = 2; }
+                                	elseif($input['insufficient'] == "1") { $mark_value = 3; }
+                                	elseif($input['na'] == "1") { $mark_value = 4; }
+                                	else{$mark_value = 0; }
+                                	if($selectval['status'] >= 3) { $disabled = 'disabled'; } else { $disabled = ''; }
+                                	$outputval.='
+                        			<tr>
+                                        '.$checkbox_sub.'
+                                        <td style="padding:10px;min-height:30px;text-align:center">
+                                        	'.$strong_selected.'
+                                        </td>
+                                        <td style="padding:10px;min-height:30px;text-align:center">
+                                        	'.$sufficient_selected.'
+                                        </td>
+                                        <td style="padding:10px;min-height:30px;text-align:center">
+                                        	'.$insufficient_selected.'
+                                        </td>
+                                        <td style="padding:10px;min-height:30px;text-align:center">
+                                        	'.$na_selected.'
+                                        </td>
+                                        <td style="padding:10px;min-height:30px;text-align:center">
+                                        	<h6>'.$input['comments'].'</h6>
+                                        </td>
+                                    </tr>';
+                                }
+                        	}
+                        }
+                    if($selectval['status'] == 4) { $outputval.='<tr>
+                    	<td colspan="6">
+                            <h5>Summary:</h5><br/>
+                            <h6>'.$form['summary'].'</h6>
+                        </td>
+                    </tr>'; }
+                    $outputval.='</table></div>
+                    ';
+        		}
+        		$html.=$outputval;
+        	}
+        	else{
+        		$html.='<div class="table_row">
+            		<div class="col-md-12 inside_table_div main_div">
+                        <div class="col-md-5">
+                        	<span style="font-weight:800;font-size: 16px;line-height: 3;">1.</span>
+                        	<h6>1. Education Program</h6>
+                        </div>
+                        <div class="col-md-1">
+                        	<h6>Strong</h6>
+                        </div>
+                        <div class="col-md-1">
+                        	<h6>Sufficient</h6>
+                        </div>
+                        <div class="col-md-1">
+                        	<h6>Insufficient</h6>
+                        </div>
+                        <div class="col-md-1">
+                        	<h6>N/A</h6>
+                        </div>
+                    </div>
+                </div>';
+        	}
+		}
+		$upload_dir = 'papers/district/';
+		if(!file_exists($upload_dir))
+		{
+			mkdir($upload_dir);
+		}
+		$mpdf = new \Mpdf\Mpdf();
+		$mpdf->SetDisplayMode('fullpage');
+		$mpdf->WriteHTML($html);
+		$this->response->setHeader('Content-Type', 'application/pdf');
+		$mpdf->Output("papers/district/".$name.".pdf","F");
+		echo $name.".pdf";
+	}
 	public function set_due_dates()
 	{
 		$district_id = $this->session->get('gowritedistrictadmin_Userid');
@@ -1261,10 +2569,20 @@ class District extends BaseController
 				elseif($cat_id == 7) { $pval = 'Misc Report'; $key = 12; }
 				elseif($cat_id == 8) { $pval = 'Misc Report'; $key = 13; }
 				
+	        	$dueDate='Optional';
+				$updatetime='-';
+
+				if(isset($due_dates[$key]) && !empty($due_dates[$key])) { 
+					$dueDate=date('F d Y', strtotime($due_dates[$key])); 
+				}
+				if(!empty($report)) { 
+					$updatetime=date('F d Y',strtotime($report['updatetime'])); 
+				}
+
 	        	$output.='<tr>
-		            <td class="due_date_td_11">'; if(isset($due_dates[$key])) { $output.=date('F d Y', strtotime($due_dates[$key])); } else { $output.='-'; } $output.='</td>
+		            <td class="due_date_td_11">'.$dueDate.'</td>
 		            <td>'.$pval.'</td>
-		            <td>'; if(!empty($report)) { $output.=date('F d Y',strtotime($report['updatetime'])); } else { $output.='-'; } $output.='</td>
+		            <td>'.$updatetime.'</td>
 		        </tr>';
 	        }
 	        $output.='</tbody>
@@ -1276,7 +2594,7 @@ class District extends BaseController
 		$mpdf->SetDisplayMode('fullpage');
 		$mpdf->WriteHTML($output);
 		$this->response->setHeader('Content-Type', 'application/pdf');
-		$mpdf->Output("papers/admin/".$name.".pdf","F");
+		$mpdf->Output("papers/district/".$name.".pdf","F");
 		echo $name.".pdf";
 	}
 	public function terms_of_use()

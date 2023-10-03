@@ -36,7 +36,11 @@
 							{
 								foreach($select_district as $district)
 								{
-									if($district['id'] == isset($_GET['district_id'])) { $selected = 'selected'; } else { $selected = ''; }
+									$selected='';
+									$district_id = isset($_GET['district_id'])?$_GET['district_id']:0;
+									if($district['id']===$district_id){ 
+										$selected = 'selected'; 
+									}
 									?>
 									<option value="<?php echo $district['id']; ?>" <?php echo $selected; ?>><?php echo $district['district_name']; ?></option>
 									<?php
@@ -216,7 +220,7 @@ function confirmDelete(href = '')
 $(window).change(function(e) {
 	if($(e.target).hasClass('choose_district'))
 	{
-		var district_id = $(e.target).val();
+		var district_id = $(e.target).val();console.log("====", district_id);
 		if(district_id == "")
 		{
 			window.location.replace("<?php echo BASE_URL.'admin/manage_schools'; ?>")

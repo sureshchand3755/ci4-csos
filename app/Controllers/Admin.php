@@ -181,7 +181,10 @@ class Admin extends BaseController
                 $input['fullname']          = trim($this->request->getVar('full_name'));
                 $input['username']          = trim($this->request->getVar('username'));
                 $input['email']			    = trim($this->request->getVar('email'));
-                $input['password']          = password_hash(trim($this->request->getVar('password')), PASSWORD_DEFAULT);
+				if(strlen($this->request->getVar('password'))!=60){
+					$input['password']          = password_hash(trim($this->request->getVar('password')), PASSWORD_DEFAULT);
+				}
+                
                 if($district_id==''){
                     $resultadmin = $this->commonModel->Insert_Values(DISTRICTADMIN_DETAILS,$input);							
                 }else{
@@ -295,7 +298,9 @@ class Admin extends BaseController
 					$input['principal_name']	= trim($this->request->getVar('principal_name'));
 					$input['username']      	= trim($this->request->getVar('username'));
 					$input['email']				= trim($this->request->getVar('email'));
-					$input['password'] 			= password_hash(trim($this->request->getVar('password')), PASSWORD_DEFAULT);
+					if(strlen($this->request->getVar('password'))!=60){
+						$input['password']          = password_hash(trim($this->request->getVar('password')), PASSWORD_DEFAULT);
+					}
 					$input['landing_message']	= trim($this->request->getVar('landing_message'));
 					
 					if($school_id=='')
@@ -2823,8 +2828,8 @@ class Admin extends BaseController
 					{
 						$resultadmin = $this->commonModel->Update_Values('pages',$input,$page_id);
 					}
-					$this->session->set_flashdata('sucess_msg', 'Page Saved Successfully');
-					redirect(base_url('admin/pages'));
+					session()->setFlashdata('notif_success', 'Page Saved Successfully');
+					return $this->response->redirect(site_url('admin/pages'));
 			}
 			else{
 				$data['selectval']=$this->request->getPost();
@@ -3979,10 +3984,20 @@ class Admin extends BaseController
 				elseif($cat_id == 7) { $pval = 'Misc Report'; $key = 12; }
 				elseif($cat_id == 8) { $pval = 'Misc Report'; $key = 13; }
 				
+				$dueDate='Optional';
+				$updatetime='-';
+
+				if(isset($due_dates[$key]) && !empty($due_dates[$key])) { 
+					$dueDate=date('F d Y', strtotime($due_dates[$key])); 
+				}
+				if(!empty($report)) { 
+					$updatetime=date('F d Y',strtotime($report['updatetime'])); 
+				}
+
 	        	$output.='<tr>
-		            <td class="due_date_td_11">'; if(isset($due_dates[$key])) { $output.=date('F d Y', strtotime($due_dates[$key])); } else { $output.='-'; } $output.='</td>
+		            <td class="due_date_td_11">'.$dueDate.'</td>
 		            <td>'.$pval.'</td>
-		            <td>'; if(!empty($report)) { $output.=date('F d Y',strtotime($report['updatetime'])); } else { $output.='-'; } $output.='</td>
+		            <td>'.$updatetime.'</td>
 		        </tr>';
 	        }
 	        $output.='</tbody>

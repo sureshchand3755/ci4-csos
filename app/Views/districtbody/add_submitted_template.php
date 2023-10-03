@@ -104,7 +104,7 @@
                             </div>
                         </div>
                         <input type="hidden" name="hidden_template_id" id="hidden_template_id" value="<?php echo $template_id; ?>">
-                        <input type="hidden" name="hidden_school_id" id="hidden_school_id" value="<?php echo $_GET['school_id']; ?>">
+                        <input type="hidden" name="hidden_school_id" id="hidden_school_id" value="<?php echo isset($_GET['school_id'])?$_GET['school_id']:0; ?>">
                         <input type="submit" class="btn btn-primary submit_step_1" name="Submit_step1" value="Proceed to Step 2">
                     </form>
 

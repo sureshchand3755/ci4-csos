@@ -2073,81 +2073,157 @@ class School extends BaseController
 	        $report_15 = $this->db->table('principal_attachments')->select('*')->where('school_id',$school_id)->where('type',9)->where('updatetime >=',$prev_year)->where('updatetime <=',$current_year)->orderBy('updatetime','desc')->get()->getRowArray();
 	        $report_13 = $this->db->table('principal_attachments')->select('*')->where('school_id',$school_id)->where('type',7)->where('updatetime >=',$prev_year)->where('updatetime <=',$current_year)->orderBy('updatetime','desc')->get()->getRowArray();
 	        $report_14 = $this->db->table('principal_attachments')->select('*')->where('school_id',$school_id)->where('type',8)->where('updatetime >=',$prev_year)->where('updatetime <=',$current_year)->orderBy('updatetime','desc')->get()->getRowArray();
-	        $output.='<tr>
-	            <td class="due_date_td_11">'; if(isset($due_dates[0])) { $output.=date('F d Y', strtotime($due_dates[0])); } $output.='</td>
-	            <td>Annual Adopted Budget</td>
-	            <td>'; if(!empty($report_1)) { $output.=date('F d Y',strtotime($report_1['updatetime'])); } else { $output.='-'; } $output.='</td>
-	        </tr>
-	        <tr>
-	            <td class="due_date_td_12">'; if(isset($due_dates[1])) { $output.=date('F d Y', strtotime($due_dates[1])); } $output.='</td>
-	            <td>Unaudited Actuals</td>
-	            <td>'; if(!empty($report_2)) { $output.=date('F d Y',strtotime($report_2['updatetime'])); } else { $output.='-'; } $output.='</td>
-	        </tr>
-	        <tr>
-	            <td class="due_date_td_13">'; if(isset($due_dates[2])) { $output.=date('F d Y', strtotime($due_dates[2])); } $output.='</td>
-	            <td>First Interim</td>
-	            <td>'; if(!empty($report_3)) { $output.=date('F d Y',strtotime($report_3['updatetime'])); } else { $output.='-'; } $output.='</td>
-	        </tr>
-	        <tr>
-	            <td class="due_date_td_14">'; if(isset($due_dates[3])) { $output.=date('F d Y', strtotime($due_dates[3])); } $output.='</td>
-	            <td>Second Interim</td>
-	            <td>'; if(!empty($report_4)) { $output.=date('F d Y',strtotime($report_4['updatetime'])); } else { $output.='-'; } $output.='</td>
-	        </tr>
-	        <tr>
-	            <td class="due_date_td_16">'; if(isset($due_dates[4])) { $output.=date('F d Y', strtotime($due_dates[4])); } $output.='</td>
-	            <td>Third Interim(Annual)</td>
-	            <td>'; if(!empty($report_5)) { $output.=date('F d Y',strtotime($report_5['updatetime'])); } else { $output.='-'; } $output.='</td>
-	        </tr>
-	        <tr>
-	            <td class="due_date_td_15">'; if(isset($due_dates[5])) { $output.=date('F d Y', strtotime($due_dates[5])); } $output.='</td>
-	            <td>LCAP</td>
-	            <td>'; if(!empty($report_6)) { $output.=date('F d Y',strtotime($report_6['updatetime'])); } else { $output.='-'; } $output.='</td>
-	        </tr>
-	        <tr>
-	            <td class="due_date_td_4">'; if(isset($due_dates[6])) { $output.=date('F d Y', strtotime($due_dates[6])); } $output.='</td>
-	            <td>Annual Audit</td>
-	            <td>'; if(!empty($report_7)) { $output.=date('F d Y',strtotime($report_7['updatetime'])); } else { $output.='-'; } $output.='</td>
-	        </tr>
-	        <tr>
-	            <td class="due_date_td_1">'; if(isset($due_dates[7])) { $output.=date('F d Y', strtotime($due_dates[7])); } $output.='</td>
-	            <td>P 1</td>
-	            <td>'; if(!empty($report_8)) { $output.=date('F d Y',strtotime($report_8['updatetime'])); } else { $output.='-'; } $output.='</td>
-	        </tr>
-	        <tr>
-	            <td class="due_date_td_2">'; if(isset($due_dates[8])) { $output.=date('F d Y', strtotime($due_dates[8])); } $output.='</td>
-	            <td>P 2</td>
-	            <td>'; if(!empty($report_9)) { $output.=date('F d Y',strtotime($report_9['updatetime'])); } else { $output.='-'; } $output.='</td>
-	        </tr>
-	        <tr>
-	            <td class="due_date_td_3">'; if(isset($due_dates[9])) { $output.=date('F d Y', strtotime($due_dates[9])); } $output.='</td>
-	            <td>P 3</td>
-	            <td>'; if(!empty($report_10)) { $output.=date('F d Y',strtotime($report_10['updatetime'])); } else { $output.='-'; } $output.='</td>
-	        </tr>
-	        <tr>
-	            <td class="due_date_td_5">'; if(isset($due_dates[10])) { $output.=date('F d Y', strtotime($due_dates[10])); } $output.='</td>
-	            <td>Report Review</td>
-	            <td>'; if(!empty($report_11)) { $output.=date('F d Y',strtotime($report_11['updatetime'])); } else { $output.='-'; } $output.='</td>
-	        </tr>
-	        <tr>
-	            <td class="due_date_td_6">'; if(isset($due_dates[11])) { $output.=date('F d Y', strtotime($due_dates[11])); } $output.='</td>
-	            <td>FCMAT Calculator</td>
-	            <td>'; if(!empty($report_12)) { $output.=date('F d Y',strtotime($report_12['updatetime'])); } else { $output.='-'; } $output.='</td>
-	        </tr>
-	        <tr>
-	            <td class="due_date_td_9">'; if(isset($due_dates[14])) { $output.=date('F d Y', strtotime($due_dates[14])); } $output.='</td>
-	            <td>Expanded Learning Opportunities Grant Plan</td>
-	            <td>'; if(!empty($report_15)) { $output.=date('F d Y',strtotime($report_15['updatetime'])); } else { $output.='-'; } $output.='</td>
-	        </tr>
-	        <tr>
-	            <td class="due_date_td_7">'; if(isset($due_dates[12])) { $output.=date('F d Y', strtotime($due_dates[12])); } $output.='</td>
-	            <td>Misc Report</td>
-	            <td>'; if(!empty($report_13)) { $output.=date('F d Y',strtotime($report_13['updatetime'])); } else { $output.='-'; } $output.='</td>
-	        </tr>
-	        <tr>
-	            <td class="due_date_td_8">'; if(isset($due_dates[13])) { $output.=date('F d Y', strtotime($due_dates[13])); } $output.='</td>
-	            <td>Misc Report</td>
-	            <td>'; if(!empty($report_14)) { $output.=date('F d Y',strtotime($report_14['updatetime'])); } else { $output.='-'; } $output.='</td>
-	        </tr>';
+
+	        // $output.='<tr>
+	        //     <td class="due_date_td_11">'; if(isset($due_dates[0])) { $output.=date('F d Y', strtotime($due_dates[0])); } $output.='</td>
+	        //     <td>Annual Adopted Budget</td>
+	        //     <td>'; if(!empty($report_1)) { $output.=date('F d Y',strtotime($report_1['updatetime'])); } else { $output.='-'; } $output.='</td>
+	        // </tr>
+	        // <tr>
+	        //     <td class="due_date_td_12">'; if(isset($due_dates[1])) { $output.=date('F d Y', strtotime($due_dates[1])); } $output.='</td>
+	        //     <td>Unaudited Actuals</td>
+	        //     <td>'; if(!empty($report_2)) { $output.=date('F d Y',strtotime($report_2['updatetime'])); } else { $output.='-'; } $output.='</td>
+	        // </tr>
+	        // <tr>
+	        //     <td class="due_date_td_13">'; if(isset($due_dates[2])) { $output.=date('F d Y', strtotime($due_dates[2])); } $output.='</td>
+	        //     <td>First Interim</td>
+	        //     <td>'; if(!empty($report_3)) { $output.=date('F d Y',strtotime($report_3['updatetime'])); } else { $output.='-'; } $output.='</td>
+	        // </tr>
+	        // <tr>
+	        //     <td class="due_date_td_14">'; if(isset($due_dates[3])) { $output.=date('F d Y', strtotime($due_dates[3])); } $output.='</td>
+	        //     <td>Second Interim</td>
+	        //     <td>'; if(!empty($report_4)) { $output.=date('F d Y',strtotime($report_4['updatetime'])); } else { $output.='-'; } $output.='</td>
+	        // </tr>
+	        // <tr>
+	        //     <td class="due_date_td_16">'; if(isset($due_dates[4])) { $output.=date('F d Y', strtotime($due_dates[4])); } $output.='</td>
+	        //     <td>Third Interim(Annual)</td>
+	        //     <td>'; if(!empty($report_5)) { $output.=date('F d Y',strtotime($report_5['updatetime'])); } else { $output.='-'; } $output.='</td>
+	        // </tr>
+	        // <tr>
+	        //     <td class="due_date_td_15">'; if(isset($due_dates[5])) { $output.=date('F d Y', strtotime($due_dates[5])); } $output.='</td>
+	        //     <td>LCAP</td>
+	        //     <td>'; if(!empty($report_6)) { $output.=date('F d Y',strtotime($report_6['updatetime'])); } else { $output.='-'; } $output.='</td>
+	        // </tr>
+	        // <tr>
+	        //     <td class="due_date_td_4">'; if(isset($due_dates[6])) { $output.=date('F d Y', strtotime($due_dates[6])); } $output.='</td>
+	        //     <td>Annual Audit</td>
+	        //     <td>'; if(!empty($report_7)) { $output.=date('F d Y',strtotime($report_7['updatetime'])); } else { $output.='-'; } $output.='</td>
+	        // </tr>
+	        // <tr>
+	        //     <td class="due_date_td_1">'; if(isset($due_dates[7])) { $output.=date('F d Y', strtotime($due_dates[7])); } $output.='</td>
+	        //     <td>P 1</td>
+	        //     <td>'; if(!empty($report_8)) { $output.=date('F d Y',strtotime($report_8['updatetime'])); } else { $output.='-'; } $output.='</td>
+	        // </tr>
+	        // <tr>
+	        //     <td class="due_date_td_2">'; if(isset($due_dates[8])) { $output.=date('F d Y', strtotime($due_dates[8])); } $output.='</td>
+	        //     <td>P 2</td>
+	        //     <td>'; if(!empty($report_9)) { $output.=date('F d Y',strtotime($report_9['updatetime'])); } else { $output.='-'; } $output.='</td>
+	        // </tr>
+	        // <tr>
+	        //     <td class="due_date_td_3">'; if(isset($due_dates[9])) { $output.=date('F d Y', strtotime($due_dates[9])); } $output.='</td>
+	        //     <td>P 3</td>
+	        //     <td>'; if(!empty($report_10)) { $output.=date('F d Y',strtotime($report_10['updatetime'])); } else { $output.='-'; } $output.='</td>
+	        // </tr>
+	        // <tr>
+	        //     <td class="due_date_td_5">'; if(isset($due_dates[10])) { $output.=date('F d Y', strtotime($due_dates[10])); } $output.='</td>
+	        //     <td>Report Review</td>
+	        //     <td>'; if(!empty($report_11)) { $output.=date('F d Y',strtotime($report_11['updatetime'])); } else { $output.='-'; } $output.='</td>
+	        // </tr>
+	        // <tr>
+	        //     <td class="due_date_td_6">'; if(isset($due_dates[11])) { $output.=date('F d Y', strtotime($due_dates[11])); } $output.='</td>
+	        //     <td>FCMAT Calculator</td>
+	        //     <td>'; if(!empty($report_12)) { $output.=date('F d Y',strtotime($report_12['updatetime'])); } else { $output.='-'; } $output.='</td>
+	        // </tr>
+	        // <tr>
+	        //     <td class="due_date_td_9">'; if(isset($due_dates[14])) { $output.=date('F d Y', strtotime($due_dates[14])); } $output.='</td>
+	        //     <td>Expanded Learning Opportunities Grant Plan</td>
+	        //     <td>'; if(!empty($report_15)) { $output.=date('F d Y',strtotime($report_15['updatetime'])); } else { $output.='-'; } $output.='</td>
+	        // </tr>
+	        // <tr>
+	        //     <td class="due_date_td_7">'; if(isset($due_dates[12])) { $output.=date('F d Y', strtotime($due_dates[12])); } $output.='</td>
+	        //     <td>Misc Report</td>
+	        //     <td>'; if(!empty($report_13)) { $output.=date('F d Y',strtotime($report_13['updatetime'])); } else { $output.='-'; } $output.='</td>
+	        // </tr>
+	        // <tr>
+	        //     <td class="due_date_td_8">'; if(isset($due_dates[13])) { $output.=date('F d Y', strtotime($due_dates[13])); } $output.='</td>
+	        //     <td>Misc Report</td>
+	        //     <td>'; if(!empty($report_14)) { $output.=date('F d Y',strtotime($report_14['updatetime'])); } else { $output.='-'; } $output.='</td>
+	        // </tr>';
+			$output.='<tr>
+				<td class="due_date_td_11">'; if(isset($due_dates[0])) { if($due_dates[0] =="") { $output.='Optional'; } else { $output.=date('F d Y', strtotime($due_dates[0])); } } else { $output.='Optional'; } $output.='</td>
+				<td>Annual Adopted Budget</td>
+				<td>'; if(!empty($report_1)) { $output.=date('F d Y',strtotime($report_1['updatetime'])); } else { $output.='-'; } $output.='</td>
+			</tr>
+			<tr>
+				<td class="due_date_td_12">'; if(isset($due_dates[1])) { if($due_dates[1] =="") { $output.='Optional'; } else { $output.=date('F d Y', strtotime($due_dates[1])); } } else { $output.='Optional'; } $output.='</td>
+				<td>Unaudited Actuals</td>
+				<td>'; if(!empty($report_2)) { $output.=date('F d Y',strtotime($report_2['updatetime'])); } else { $output.='-'; } $output.='</td>
+			</tr>
+			<tr>
+				<td class="due_date_td_13">'; if(isset($due_dates[2])) { if($due_dates[2] =="") { $output.='Optional'; } else { $output.=date('F d Y', strtotime($due_dates[2])); } } else { $output.='Optional'; } $output.='</td>
+				<td>First Interim</td>
+				<td>'; if(!empty($report_3)) { $output.=date('F d Y',strtotime($report_3['updatetime'])); } else { $output.='-'; } $output.='</td>
+			</tr>
+			<tr>
+				<td class="due_date_td_14">'; if(isset($due_dates[3])) { if($due_dates[3] =="") { $output.='Optional'; } else { $output.=date('F d Y', strtotime($due_dates[3])); } } else { $output.='Optional'; } $output.='</td>
+				<td>Second Interim</td>
+				<td>'; if(!empty($report_4)) { $output.=date('F d Y',strtotime($report_4['updatetime'])); } else { $output.='-'; } $output.='</td>
+			</tr>
+			<tr>
+				<td class="due_date_td_16">'; if(isset($due_dates[4])) { if($due_dates[4] =="") { $output.='Optional'; } else { $output.=date('F d Y', strtotime($due_dates[4])); } } else { $output.='Optional'; } $output.='</td>
+				<td>Third Interim(Annual)</td>
+				<td>'; if(!empty($report_5)) { $output.=date('F d Y',strtotime($report_5['updatetime'])); } else { $output.='-'; } $output.='</td>
+			</tr>
+			<tr>
+				<td class="due_date_td_15">'; if(isset($due_dates[5])) { if($due_dates[5] =="") { $output.='Optional'; } else { $output.=date('F d Y', strtotime($due_dates[5])); } } else { $output.='Optional'; } $output.='</td>
+				<td>LCAP</td>
+				<td>'; if(!empty($report_6)) { $output.=date('F d Y',strtotime($report_6['updatetime'])); } else { $output.='-'; } $output.='</td>
+			</tr>
+			<tr>
+				<td class="due_date_td_4">'; if(isset($due_dates[6])) { if($due_dates[6] =="") { $output.='Optional'; } else { $output.=date('F d Y', strtotime($due_dates[6])); } } else { $output.='Optional'; } $output.='</td>
+				<td>Annual Audit</td>
+				<td>'; if(!empty($report_7)) { $output.=date('F d Y',strtotime($report_7['updatetime'])); } else { $output.='-'; } $output.='</td>
+			</tr>
+			<tr>
+				<td class="due_date_td_1">'; if(isset($due_dates[7])) { if($due_dates[7] =="") { $output.='Optional'; } else { $output.=date('F d Y', strtotime($due_dates[7])); } } else { $output.='Optional'; } $output.='</td>
+				<td>P 1</td>
+				<td>'; if(!empty($report_8)) { $output.=date('F d Y',strtotime($report_8['updatetime'])); } else { $output.='-'; } $output.='</td>
+			</tr>
+			<tr>
+				<td class="due_date_td_2">'; if(isset($due_dates[8])) { if($due_dates[8] =="") { $output.='Optional'; } else { $output.=date('F d Y', strtotime($due_dates[8])); } } else { $output.='Optional'; } $output.='</td>
+				<td>P 2</td>
+				<td>'; if(!empty($report_9)) { $output.=date('F d Y',strtotime($report_9['updatetime'])); } else { $output.='-'; } $output.='</td>
+			</tr>
+			<tr>
+				<td class="due_date_td_3">'; if(isset($due_dates[9])) { if($due_dates[9] =="") { $output.='Optional'; } else { $output.=date('F d Y', strtotime($due_dates[9])); } } else { $output.='Optional'; } $output.='</td>
+				<td>P 3</td>
+				<td>'; if(!empty($report_10)) { $output.=date('F d Y',strtotime($report_10['updatetime'])); } else { $output.='-'; } $output.='</td>
+			</tr>
+			<tr>
+				<td class="due_date_td_5">'; if(isset($due_dates[10])) { if($due_dates[10] =="") { $output.='Optional'; } else { $output.=date('F d Y', strtotime($due_dates[10])); } } else { $output.='Optional'; } $output.='</td>
+				<td>Report Review</td>
+				<td>'; if(!empty($report_11)) { $output.=date('F d Y',strtotime($report_11['updatetime'])); } else { $output.='-'; } $output.='</td>
+			</tr>
+			<tr>
+				<td class="due_date_td_6">'; if(isset($due_dates[11])) { if($due_dates[11] =="") { $output.='Optional'; } else { $output.=date('F d Y', strtotime($due_dates[11])); } } else { $output.='Optional'; } $output.='</td>
+				<td>FCMAT Calculator</td>
+				<td>'; if(!empty($report_12)) { $output.=date('F d Y',strtotime($report_12['updatetime'])); } else { $output.='-'; } $output.='</td>
+			</tr>
+			<tr>
+				<td class="due_date_td_9">'; if(isset($due_dates[14])) { if($due_dates[14] =="") { $output.='Optional'; } else { $output.=date('F d Y', strtotime($due_dates[14])); } } else { $output.='Optional'; } $output.='</td>
+				<td>Expanded Learning Opportunities Grant Plan</td>
+				<td>'; if(!empty($report_15)) { $output.=date('F d Y',strtotime($report_15['updatetime'])); } else { $output.='-'; } $output.='</td>
+			</tr>
+			<tr>
+				<td class="due_date_td_7">'; if(isset($due_dates[12])) { if($due_dates[12] =="") { $output.='Optional'; } else { $output.=date('F d Y', strtotime($due_dates[12])); } } else { $output.='Optional'; } $output.='</td>
+				<td>Misc Report</td>
+				<td>'; if(!empty($report_13)) { $output.=date('F d Y',strtotime($report_13['updatetime'])); } else { $output.='-'; } $output.='</td>
+			</tr>
+			<tr>
+				<td class="due_date_td_8">'; if(isset($due_dates[13])) { if($due_dates[13] =="") { $output.='Optional'; } else { $output.=date('F d Y', strtotime($due_dates[13])); } } else { $output.='Optional'; } $output.='</td>
+				<td>Misc Report</td>
+				<td>'; if(!empty($report_14)) { $output.=date('F d Y',strtotime($report_14['updatetime'])); } else { $output.='-'; } $output.='</td>
+			</tr>';
 	        echo $output;
 		}
     public function admin_setting()
@@ -2233,6 +2309,7 @@ class School extends BaseController
 			$data['selectval'] = $this->commonModel->Select_Val_Id('go_schools',$data['admin_id']);
 			$this->schoolBodyTemplate('schoolbody/admin_settings',$data);
 	}
+	
 	public function principal_apportionment(){
 		$data = $this->commonData();
 		if(isset($_GET['notify']))
@@ -2865,8 +2942,9 @@ class School extends BaseController
 			else{
 				$get_attachments = $this->db->table('principal_attachments')->select('*')->where('school_id',$school_id)->where('updatetime >=',$from)->where('updatetime <=',$to)->get()->getResultArray();
 			}
-			$get_attachments = array();
+			// $get_attachments = array();
 		}
+		
 		$output = '';
 		$i = 1;
 		if(count($get_attachments))

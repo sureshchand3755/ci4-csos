@@ -1,3 +1,6 @@
+<?php 
+$this->db	= \Config\Database::connect();
+?>
 <section class="page-content">
     <div class="page-content-inner">
 	<section class="panel">
@@ -272,7 +275,7 @@ textarea{
           <div class="row">
             <h4>Step1</h4>
             <?php
-            $template_details = $this->db->select('*')->from('master_templates')->where('id',$template_id)->get()->row_array();
+            $template_details = $this->db->table('master_templates')->select('*')->where('id',$template_id)->get()->getRowArray();
             if(!empty($template_details))
             {
                 $unserialize = unserialize($template_details['content']);
@@ -332,7 +335,7 @@ textarea{
           <div class="row">
             <h4>Step1</h4>
             <?php
-            $template_details = $this->db->select('*')->from('master_templates')->where('id',$template_id)->get()->row_array();
+            $template_details = $this->db->table('master_templates')->select('*')->where('id',$template_id)->get()->getRowArray();
             if(!empty($template_details))
             {
                 $unserialize = unserialize($template_details['content']);
@@ -424,12 +427,12 @@ textarea{
                                     	<div class="col-md-12">
                                     		<h5>Legend</h5>
                                     		<h6>
-                                    			<?php echo $templates['legend']; ?>
+                                    			<?php echo $template['legend']; ?>
                                     		</h6>
                                     	</div>
                                     	<div class="template_main_div" style="width:100%;overflow-x:scroll">
                                     	<?php
-                                    	$template_details = $this->db->select('*')->from('master_templates')->where('id',$template_id)->get()->row_array();
+                                    	$template_details = $this->db->table('master_templates')->select('*')->where('id',$template_id)->get()->getRowArray();
                                     	if(!empty($forms))
                                     	{
                                     		$outputval = '';
@@ -472,7 +475,7 @@ textarea{
 					                                        	'.$form['comments'].'
 					                                        </div>
 					                                    </div>';
-					                                $get_sub_inputs = $this->db->select('*')->from('template_forms')->where('sub_id',$form['id'])->where('template_id',$form['template_id'])->get()->result_array();
+					                                $get_sub_inputs = $this->db->table('template_forms')->select('*')->where('sub_id',$form['id'])->where('template_id',$form['template_id'])->get()->getResultArray();
 					                                if(!empty($get_sub_inputs))
 					                                {
 					                                	foreach($get_sub_inputs as $keyvalinput => $input)
@@ -546,7 +549,7 @@ textarea{
 
 							                                	if($template_details['status'] >= 3) { $disabled = 'disabled'; } else { $disabled = ''; }
                                                 $downloadfile = '';
-                                                $files = $this->db->select('*')->from('template_attachments')->where('form_id',$input['id'])->get()->result_array();
+                                                $files = $this->db->table('template_attachments')->select('*')->where('form_id',$input['id'])->get()->getResultArray();
                                                 if(!empty($files))
                                                 {
                                                   $downloadfile_image = '';
@@ -669,7 +672,7 @@ textarea{
 			                                        <textarea name="summary[]" class="form-control summary_input" onkeyup="textAreaAdjust(this)" '.$disabled_summary.'>'.$form['summary'].'</textarea>
 			                                    </div>
                                           <div class="col-md-4">';
-                                              $files_summary = $this->db->select('*')->from('template_attachments')->where('form_id',$form['id'])->get()->result_array();
+                                              $files_summary = $this->db->table('template_attachments')->select('*')->where('form_id',$form['id'])->get()->getResultArray();
                                               if(!empty($files_summary))
                                               {
                                                 $downloadfile_image = '';
