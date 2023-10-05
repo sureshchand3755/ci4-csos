@@ -2309,7 +2309,13 @@ class School extends BaseController
 			$data['selectval'] = $this->commonModel->Select_Val_Id('go_schools',$data['admin_id']);
 			$this->schoolBodyTemplate('schoolbody/admin_settings',$data);
 	}
-	
+	public function user_documents_timeline(){
+		$data = $this->commonData();
+		$data['title']= 'USER';
+		$data['districts']= $this->db->table('go_district_admin')->select('*')->where('status',0)->get()->getResultArray();
+		$config['base_url'] = BASE_URL.'school/user_documents_timeline/';
+		$this->schoolBodyTemplate('schoolbody/documents_timeline',$data);
+	}
 	public function principal_apportionment(){
 		$data = $this->commonData();
 		if(isset($_GET['notify']))

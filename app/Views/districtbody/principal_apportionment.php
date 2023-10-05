@@ -219,7 +219,7 @@ $this->db = \Config\Database::connect();
 
                                                         <div class="controls">
 
-                                                            <input type="file" name="file" class="form-control file_principal" value="" required/>
+                                                            <input type="file" name="file" class="form-control file_principal" required/>
 
                                                         </div>
 
@@ -774,21 +774,19 @@ $this->db = \Config\Database::connect();
         {
 
             e.preventDefault();
-
+            var filename = $(".file_principal")[0].files.length;
             var school_checked = $(".school_select:checked").length;
 
-            if(school_checked > 0)
-
-            {
-
-                $("#form_sample_3").submit();
-
-            }
-
-            else{
-
+            if(school_checked > 0){
+                if(filename > 0){
+                    $("#form_sample_3").submit();
+                }else{
+                    alert("Please upload the file.");
+                    $('.file_principal').focus();
+                }
+            }else{
                 alert("Please select atleast one or more schools to proceed.");
-
+                $(".school_select").focus();
             }
 
         }
