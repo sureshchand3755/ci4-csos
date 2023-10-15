@@ -6,12 +6,11 @@ use Mpdf\Mpdf;
 class School extends BaseController
 {
     public function __construct()
-    {	
+    {
+		$this->is_session_available();	
     }
     public function index()
     {
-        // echo password_hash(123456, PASSWORD_DEFAULT);
-        // exit;
         $data['islogin'] = 'TRUE';
         $data['title'] = 'School Admin Login';
         return $this->schoolTemplate('schoolbody/login',$data); 
@@ -23,7 +22,7 @@ class School extends BaseController
         $this->schoolTemplate('schoolbody/login',$data);
     }
     public function commonData($title=null){ 
-        $data = array_merge($this->data, [
+	    $data = array_merge($this->data, [
 			'title'         => $title,
             'users'		=> $this->adminModel->GetAdminDetail($this->session->get('gowriteschooladmin_Userid'), 'go_schools'),            
             'surveys'		=> $this->adminModel->getSurveys(),
@@ -32,11 +31,15 @@ class School extends BaseController
         return $data ;
     }
     public function dashboard(){
-		$data = $this->commonData();
-		$data['title'] = 'School Admin Settings';
-		$data['admin_id']= $this->session->get('gowriteschooladmin_Userid');
-		$data['selectval'] = $this->commonModel->Select_Val_Id('go_schools',$data['admin_id']);
-		$this->schoolBodyTemplate('schoolbody/dashboard',$data);
+		if(isset($this->session) && $this->session->get('gowriteschooladmin_Userid')==null){
+			return redirect()->to(base_url('/'));
+		}else{
+			$data = $this->commonData();
+			$data['title'] = 'School Admin Settings';
+			$data['admin_id']= $this->session->get('gowriteschooladmin_Userid');
+			$data['selectval'] = $this->commonModel->Select_Val_Id('go_schools',$data['admin_id']);
+			$this->schoolBodyTemplate('schoolbody/dashboard',$data);
+		}
 	}
 	public function manage_dashboard_surveys()
 	{
@@ -2314,8 +2317,389 @@ class School extends BaseController
 		$data['title']= 'USER';
 		$data['districts']= $this->db->table('go_district_admin')->select('*')->where('status',0)->get()->getResultArray();
 		$config['base_url'] = BASE_URL.'school/user_documents_timeline/';
-		$this->schoolBodyTemplate('schoolbody/documents_timeline',$data);
+		$this->schoolBodyTemplate('documents_timeline',$data);
 	}
+	public function user_school_lists()
+		{
+			$district_id = $this->request->getVar('district_id');
+			$schools = $this->db->table('go_schools')->select('*')->where('district_id',$district_id)->get()->getResultArray();
+			$output = '';
+			if(!empty($schools))
+			{
+				$output.= '<option value="">Select School</option>';
+				foreach($schools as $school)
+				{
+					$output.='<option value="'.$school['id'].'">'.$school['school_name'].'</option>';
+				}
+			}
+			else{
+				$output.='<option value="">No Schools Found</option>';
+			}
+			echo $output;
+		}
+		public function user_get_documents_timeline()
+		{
+			$district = $this->request->getVar('district');
+			$school = $this->request->getVar('school');
+			$year = $this->request->getVar('year');
+			$nxtyear = $year + 1;
+			$current_year = $year.'-07-01 00:00:00';
+			$next_year = $nxtyear.'-06-30 23:55:00';
+			$surveys = $this->db->table('master_templates')->select('*')->where('school_id',$school)->where('status',4)->where('updatetime >=',$current_year)->where('updatetime <=',$next_year)->orderBy('updatetime','asc')->get()->getResultArray();
+			
+			$output = '<table class="table">
+				<thead>
+					<th></th>
+					<th>Jul</th>
+					<th>Aug</th>
+					<th>Sep</th>
+					<th>Oct</th>
+					<th>Nov</th>
+					<th>Dec</th>
+					<th>Jan</th>
+					<th>Feb</th>
+					<th>Mar</th>
+					<th>Apr</th>
+					<th>May</th>
+					<th>Jun</th>
+				</thead>
+				<tbody>
+					<tr>
+						<td style="vertical-align: middle;">Financial Reports</td>';
+						for($i=7; $i<=12; $i++)
+						{
+							if($i < 10)
+							{
+								$i = '0'.$i;
+							}
+							$currentmonthyear = $year.'-'.$i;
+							$attachments = $this->db->table('principal_attachments')->select('*')->where('school_id',$school)->where('type !=',15)->like('updatetime',$currentmonthyear)->get()->getResultArray();
+							
+							$output.='<td style="border-top: 0px;">';
+							if(!empty($attachments))
+							{
+								foreach($attachments as $attach)
+								{
+									$pval = '';
+									if($attach['type'] == 4) { $pval = 'ANNUAL AUDIT'; }
+									elseif($attach['type'] == 1) { $pval = 'P 1'; }
+									elseif($attach['type'] == 2) { $pval = 'P 2'; }
+									elseif($attach['type'] == 3) { $pval = 'P 3'; }
+									elseif($attach['type'] == 5) { $pval = 'REPORT REVIEW'; }
+									elseif($attach['type'] == 6) { $pval = 'FCMAT CALCULATOR'; }
+									elseif($attach['type'] == 7) { $pval = 'Misc Report'; }
+									elseif($attach['type'] == 8) { $pval = 'Misc Report'; }
+									elseif($attach['type'] == 9) { $pval = 'Expanded Learning Opportunities Grant Plan'; }
+									elseif($attach['type'] == 11) { $pval = 'Annual Adopted Budget'; }
+									elseif($attach['type'] == 12) { $pval = 'Unaudited Actuals'; }
+									elseif($attach['type'] == 13) { $pval = 'First Interim'; }
+									elseif($attach['type'] == 14) { $pval = 'Second Interim'; }
+									elseif($attach['type'] == 15) { $pval = 'LCAP'; }
+									elseif($attach['type'] == 16) { $pval = 'Third Interim (Annual)'; }
+									$output.='<h6>'.$pval.'</h6>';
+									$explodefile = explode("||",$attach['filename']);
+                                    $filenme = '';
+                                    if(!empty($explodefile))
+                                    {
+                                        foreach($explodefile as $exp)
+                                        {
+                                        	$get_ext = explode('.',$exp);
+											$img = BASE_URL.'assets/images/pdf.png';
+											if(end($get_ext) == "pdf") { 
+												$img = BASE_URL.'assets/images/pdf.png'; 
+												$output.='<a href="javascript:" data-src="'.$attach['url'].'/'.$exp.'" class="view_pdf">
+															<img src="'.$img.'" style="width:35px" data-src="'.$attach['url'].'/'.$exp.'" class="view_pdf">
+														</a>';
+											}
+											else{
+												if(end($get_ext) == "xls" || end($get_ext) == "xlsx") { $img = BASE_URL.'assets/images/excel.png'; }
+												elseif(end($get_ext) == "doc" || end($get_ext) == "docx") { $img = BASE_URL.'assets/images/doc.png'; }
+												elseif(end($get_ext) == "jpg" || end($get_ext) == "jpeg" || end($get_ext) == "png" || end($get_ext) == "gif" || end($get_ext) == "svg") { $img = BASE_URL.'assets/images/img.png'; }
+												$output.='<a href="'.BASE_URL.$attach['url'].'/'.$exp.'" download>
+															<img src="'.$img.'" style="width:35px">
+														</a>';
+											}
+                                        }
+                                    }
+                                    else{
+										$output.='-';
+									}
+								}
+							}
+							else{
+								$output.='-';
+							}
+							$output.='</td>';
+						}
+						for($j=1; $j<=6; $j++)
+						{
+							if($j < 10)
+							{
+								$j = '0'.$j;
+							}
+							$currentmonthyear = $nxtyear.'-'.$j;
+							$attachments = $this->db->table('principal_attachments')->select('*')->where('school_id',$school)->where('type !=',15)->like('updatetime',$currentmonthyear)->get()->getResultArray();
+							
+							$output.='<td style="border-top: 0px;">';
+							if(!empty($attachments))
+							{
+								foreach($attachments as $attach)
+								{
+									$pval = '';
+									if($attach['type'] == 4) { $pval = 'ANNUAL AUDIT'; }
+									elseif($attach['type'] == 1) { $pval = 'P 1'; }
+									elseif($attach['type'] == 2) { $pval = 'P 2'; }
+									elseif($attach['type'] == 3) { $pval = 'P 3'; }
+									elseif($attach['type'] == 5) { $pval = 'REPORT REVIEW'; }
+									elseif($attach['type'] == 6) { $pval = 'FCMAT CALCULATOR'; }
+									elseif($attach['type'] == 7) { $pval = 'Misc Report'; }
+									elseif($attach['type'] == 8) { $pval = 'Misc Report'; }
+									elseif($attach['type'] == 9) { $pval = 'Expanded Learning Opportunities Grant Plan'; }
+									elseif($attach['type'] == 11) { $pval = 'Annual Adopted Budget'; }
+									elseif($attach['type'] == 12) { $pval = 'Unaudited Actuals'; }
+									elseif($attach['type'] == 13) { $pval = 'First Interim'; }
+									elseif($attach['type'] == 14) { $pval = 'Second Interim'; }
+									elseif($attach['type'] == 15) { $pval = 'LCAP'; }
+									elseif($attach['type'] == 16) { $pval = 'Third Interim (Annual)'; }
+									$output.='<h6>'.$pval.'</h6>';
+									$explodefile = explode("||",$attach['filename']);
+                                    $filenme = '';
+                                    if(!empty($explodefile))
+                                    {
+                                        foreach($explodefile as $exp)
+                                        {
+                                        	$get_ext = explode('.',$exp);
+											$img = BASE_URL.'assets/images/pdf.png';
+											if(end($get_ext) == "pdf") { 
+												$img = BASE_URL.'assets/images/pdf.png'; 
+												$output.='<a href="javascript:" data-src="'.$attach['url'].'/'.$exp.'" class="view_pdf">
+															<img src="'.$img.'" style="width:35px" data-src="'.$attach['url'].'/'.$exp.'" class="view_pdf">
+														</a>';
+											}
+											else{
+												if(end($get_ext) == "xls" || end($get_ext) == "xlsx") { $img = BASE_URL.'assets/images/excel.png'; }
+												elseif(end($get_ext) == "doc" || end($get_ext) == "docx") { $img = BASE_URL.'assets/images/doc.png'; }
+												elseif(end($get_ext) == "jpg" || end($get_ext) == "jpeg" || end($get_ext) == "png" || end($get_ext) == "gif" || end($get_ext) == "svg") { $img = BASE_URL.'assets/images/img.png'; }
+												$output.='<a href="'.BASE_URL.$attach['url'].'/'.$exp.'" download>
+															<img src="'.$img.'" style="width:35px">
+														</a>';
+											}
+                                        }
+                                    }
+                                    else{
+										$output.='-';
+									}
+								}
+							}
+							else{
+								$output.='-';
+							}
+							$output.='</td>';
+						}
+					$output.='</tr>
+					<tr>
+						<td>LCAP</td>';
+						for($i=7; $i<=12; $i++)
+						{
+							if($i < 10)
+							{
+								$i = '0'.$i;
+							}
+							$currentmonthyear = $year.'-'.$i;
+							$attachments = $this->db->table('principal_attachments')->select('*')->where('school_id',$school)->where('type',15)->like('updatetime',$currentmonthyear)->get()->getResultArray();
+							
+							$output.='<td style="border-top: 0px;">';
+							if(!empty($attachments))
+							{
+								foreach($attachments as $attach)
+								{
+									$pval = '';
+									if($attach['type'] == 4) { $pval = 'ANNUAL AUDIT'; }
+									elseif($attach['type'] == 1) { $pval = 'P 1'; }
+									elseif($attach['type'] == 2) { $pval = 'P 2'; }
+									elseif($attach['type'] == 3) { $pval = 'P 3'; }
+									elseif($attach['type'] == 5) { $pval = 'REPORT REVIEW'; }
+									elseif($attach['type'] == 6) { $pval = 'FCMAT CALCULATOR'; }
+									elseif($attach['type'] == 7) { $pval = 'Misc Report'; }
+									elseif($attach['type'] == 8) { $pval = 'Misc Report'; }
+									elseif($attach['type'] == 9) { $pval = 'Expanded Learning Opportunities Grant Plan'; }
+									elseif($attach['type'] == 11) { $pval = 'Annual Adopted Budget'; }
+									elseif($attach['type'] == 12) { $pval = 'Unaudited Actuals'; }
+									elseif($attach['type'] == 13) { $pval = 'First Interim'; }
+									elseif($attach['type'] == 14) { $pval = 'Second Interim'; }
+									elseif($attach['type'] == 15) { $pval = 'LCAP'; }
+									elseif($attach['type'] == 16) { $pval = 'Third Interim (Annual)'; }
+									$output.='<h6>'.$pval.'</h6>';
+									$explodefile = explode("||",$attach['filename']);
+                                    $filenme = '';
+                                    if(!empty($explodefile))
+                                    {
+                                        foreach($explodefile as $exp)
+                                        {
+                                        	$get_ext = explode('.',$exp);
+											$img = BASE_URL.'assets/images/pdf.png';
+											if(end($get_ext) == "pdf") { 
+												$img = BASE_URL.'assets/images/pdf.png'; 
+												$output.='<a href="javascript:" data-src="'.$attach['url'].'/'.$exp.'" class="view_pdf">
+															<img src="'.$img.'" style="width:35px" data-src="'.$attach['url'].'/'.$exp.'" class="view_pdf">
+														</a>';
+											}
+											else{
+												if(end($get_ext) == "xls" || end($get_ext) == "xlsx") { $img = BASE_URL.'assets/images/excel.png'; }
+												elseif(end($get_ext) == "doc" || end($get_ext) == "docx") { $img = BASE_URL.'assets/images/doc.png'; }
+												elseif(end($get_ext) == "jpg" || end($get_ext) == "jpeg" || end($get_ext) == "png" || end($get_ext) == "gif" || end($get_ext) == "svg") { $img = BASE_URL.'assets/images/img.png'; }
+												$output.='<a href="'.BASE_URL.$attach['url'].'/'.$exp.'" download>
+															<img src="'.$img.'" style="width:35px">
+														</a>';
+											}
+                                        }
+                                    }
+                                    else{
+										$output.='-';
+									}
+								}
+							}
+							else{
+								$output.='-';
+							}
+							$output.='</td>';
+						}
+						for($j=1; $j<=6; $j++)
+						{
+							if($j < 10)
+							{
+								$j = '0'.$j;
+							}
+							$currentmonthyear = $nxtyear.'-'.$j;
+							$attachments = $this->db->table('principal_attachments')->select('*')->where('type',15)->like('updatetime',$currentmonthyear)->get()->getResultArray();
+							
+							$output.='<td style="border-top: 0px;">';
+							if(!empty($attachments))
+							{
+								foreach($attachments as $attach)
+								{
+									$pval = '';
+									if($attach['type'] == 4) { $pval = 'ANNUAL AUDIT'; }
+									elseif($attach['type'] == 1) { $pval = 'P 1'; }
+									elseif($attach['type'] == 2) { $pval = 'P 2'; }
+									elseif($attach['type'] == 3) { $pval = 'P 3'; }
+									elseif($attach['type'] == 5) { $pval = 'REPORT REVIEW'; }
+									elseif($attach['type'] == 6) { $pval = 'FCMAT CALCULATOR'; }
+									elseif($attach['type'] == 7) { $pval = 'Misc Report'; }
+									elseif($attach['type'] == 8) { $pval = 'Misc Report'; }
+									elseif($attach['type'] == 9) { $pval = 'Expanded Learning Opportunities Grant Plan'; }
+									elseif($attach['type'] == 11) { $pval = 'Annual Adopted Budget'; }
+									elseif($attach['type'] == 12) { $pval = 'Unaudited Actuals'; }
+									elseif($attach['type'] == 13) { $pval = 'First Interim'; }
+									elseif($attach['type'] == 14) { $pval = 'Second Interim'; }
+									elseif($attach['type'] == 15) { $pval = 'LCAP'; }
+									elseif($attach['type'] == 16) { $pval = 'Third Interim (Annual)'; }
+									$output.='<h6>'.$pval.'</h6>';
+									$explodefile = explode("||",$attach['filename']);
+                                    $filenme = '';
+                                    if(!empty($explodefile))
+                                    {
+                                        foreach($explodefile as $exp)
+                                        {
+                                        	$get_ext = explode('.',$exp);
+											$img = BASE_URL.'assets/images/pdf.png';
+											if(end($get_ext) == "pdf") { 
+												$img = BASE_URL.'assets/images/pdf.png'; 
+												$output.='<a href="javascript:" data-src="'.$attach['url'].'/'.$exp.'" class="view_pdf">
+															<img src="'.$img.'" style="width:35px" data-src="'.$attach['url'].'/'.$exp.'" class="view_pdf">
+														</a>';
+											}
+											else{
+												if(end($get_ext) == "xls" || end($get_ext) == "xlsx") { $img = BASE_URL.'assets/images/excel.png'; }
+												elseif(end($get_ext) == "doc" || end($get_ext) == "docx") { $img = BASE_URL.'assets/images/doc.png'; }
+												elseif(end($get_ext) == "jpg" || end($get_ext) == "jpeg" || end($get_ext) == "png" || end($get_ext) == "gif" || end($get_ext) == "svg") { $img = BASE_URL.'assets/images/img.png'; }
+												$output.='<a href="'.BASE_URL.$attach['url'].'/'.$exp.'" download>
+															<img src="'.$img.'" style="width:35px">
+														</a>';
+											}
+                                        }
+                                    }
+                                    else{
+										$output.='-';
+									}
+								}
+							}
+							else{
+								$output.='-';
+							}
+							$output.='</td>';
+						}
+					$output.='</tr>
+					<tr>
+						<td>Self Study Survey</td>';
+						for($i=7; $i<=12; $i++)
+						{
+							if($i < 10)
+							{
+								$i = '0'.$i;
+							}
+							$currentmonthyear = $year.'-'.$i;
+							$surveys = $this->db->table('master_templates')->select('*')->where('school_id',$school)->where('status',4)->like('updatetime',$currentmonthyear)->get()->getResultArray();
+							$output.='<td>';
+							if(!empty($surveys))
+							{
+								foreach($surveys as $survey)
+								{
+									$output.='<h6>'.$survey['template_name'].'</h6>';
+									$output.='<a href="javascript:" class="download_full_survey" data-element="'.$survey['id'].'">
+												<img src="'.BASE_URL.'assets/images/pdf.png'.'" class="download_full_survey" data-element="'.$survey['id'].'" style="width:35px">
+											</a>';
+								}
+							}
+							else{
+								$output.='-';
+							}
+							$output.='</td>';
+						}
+						for($j=1; $j<=6; $j++)
+						{
+							if($j < 10)
+							{
+								$j = '0'.$j;
+							}
+							$currentmonthyear = $nxtyear.'-'.$j;
+							$surveys = $this->db->table('master_templates')->select('*')->where('school_id',$school)->where('status',4)->like('updatetime',$currentmonthyear)->get()->getResultArray();
+							$output.='<td>';
+							if(!empty($surveys))
+							{
+								foreach($surveys as $survey)
+								{
+									$output.='<h6>'.$survey['template_name'].'</h6>';
+									$output.='<a href="javascript:" class="download_full_survey" data-element="'.$survey['id'].'">
+												<img src="'.BASE_URL.'assets/images/pdf.png'.'" class="download_full_survey" data-element="'.$survey['id'].'" style="width:35px">
+											</a>';
+								}
+							}
+							else{
+								$output.='-';
+							}
+							$output.='</td>';
+						}
+					$output.='</tr>
+				</tbody>
+			</table>';
+			$school_details = $this->commonModel->Select_Val_Id('go_schools',$school);
+			if($school_details['charter_school_petition'] != "")
+			{
+				$charter_petition = 'uploads/school_notes/'.$school_details['charter_school_petition'];
+			}
+			else{
+				$charter_petition = '';
+			}
+			if($school_details['charter_school_mou'] != "")
+			{
+				$mou = 'uploads/school_notes/'.$school_details['charter_school_mou'];
+			}
+			else{
+				$mou = '';
+			}
+			echo json_encode(array("output" => $output,"charter_petition" => $charter_petition,"mou" => $mou));
+		}	
 	public function principal_apportionment(){
 		$data = $this->commonData();
 		if(isset($_GET['notify']))
@@ -3069,7 +3453,12 @@ class School extends BaseController
 				mail($adminemail, $admin_subject, $contactmsg, $contactheaders);
 				mail($district_email, $district_subject, $contactschoolmsg, $contactheaders);
 			}
+	}
+	public function is_session_available() {
+		if(isset($this->session) && $this->session->get('gowriteschooladmin_Userid')==null){
+			return redirect('/');
 		}
+	}
     public function logout()
 	{
 		$this->session->destroy();

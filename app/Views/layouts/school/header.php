@@ -24,28 +24,17 @@ $this->session 	= \Config\Services::session();
             <div class="dropdown dropdown-avatar">
                 <a href="javascript: void(0);" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                     <span class="avatar" href="javascript:void(0);">
-                        <?php $admin = $users;
-
-                            if($admin['image']=='') {
-
+                        <?php 
+                            $admin = $users;
+                            if(!empty($admin) && $admin['image']!='') {
                             ?>
-
-                                <img src="<?php echo BASE_URL; ?>assets/images/avatar5.png" alt="User Image" />
-
-                            <?php
-
-                            }
-
-                            else {
-
-                            ?>
-
                                 <img src="<?php echo BASE_URL.UPLOAD_PROFILEPICS.'principal/'.$admin['image']; ?>" alt="User Image" />
-
                             <?php
-
+                            }else {
+                            ?>
+                                <img src="<?php echo BASE_URL; ?>assets/images/avatar5.png" alt="User Image" />
+                            <?php
                             }
-
                             ?>
                     </span>
                 </a>
@@ -181,7 +170,7 @@ $this->session 	= \Config\Services::session();
             </div>
             <div class="right" style="width:35%">
                 <?php
-                    if($admin['fiscal_filename'] != "") {
+                    if(!empty($admin)&&$admin['fiscal_filename'] != "") {
                         $extexp = explode(".",$admin['fiscal_filename']);
                         $ext = end($extexp);
                         if($ext == "pdf")
@@ -201,7 +190,7 @@ $this->session 	= \Config\Services::session();
                             <a class="btn btn-primary btn-sm alert_fiscal_alert" href="javascript:">Fiscal Reporting Calendar</a>
                         <?php
                     }
-                    if($admin['handbook_name'] != "")
+                    if(!empty($admin)&&$admin['handbook_name'] != "")
                     {
                         if($admin['attach_url'] != "")
                         {
